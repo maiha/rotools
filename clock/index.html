@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        #menu {
+            display: flex;
+            padding: 10px;
+            gap: 10px;
+            background-color: #111;
+        }
+        
+        .menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            background-color: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #fff;
+        }
+        
+        .menu-item:hover {
+            background-color: #333;
+        }
+        
+        .menu-item.active {
+            background-color: #444;
+            border-color: #666;
+        }
+        
+        #content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #clock-mode {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #time, #date {
+            white-space: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        #time::-webkit-scrollbar, #date::-webkit-scrollbar {
+            display: none;
+        }
+        
+        #time {
+            width: 100vw;
+            text-align: center;
+        }
+        
+        #date {
+            width: 50vw;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu">
+        <a href="index.html" class="menu-item active">時計</a>
+        <a href="shinkirou.html" class="menu-item">蜃気楼</a>
+    </div>
+    
+    <div id="content">
+        <div id="clock-mode">
+            <div id="time"></div>
+            <div id="date"></div>
+        </div>
+    </div>
+    
+    <script>
+        const timeElement = document.getElementById('time');
+        const dateElement = document.getElementById('date');
+        const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+        
+        function updateClock() {
+            const now = new Date();
+            
+            // 時刻 HH:MM:SS
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            
+            // 日付 YYYY年M月D日(曜)
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const weekday = weekdays[now.getDay()];
+            const dateString = `${year}年${month}月${day}日(${weekday})`;
+            
+            timeElement.textContent = timeString;
+            dateElement.textContent = dateString;
+        }
+        
+        function calculateFontSize() {
+            // 時刻用フォントサイズ計算（100vw幅）
+            const timeWidth = window.innerWidth;
+            const timeTestSize = 100;
+            timeElement.style.fontSize = timeTestSize + 'px';
+            const timeActualWidth = timeElement.scrollWidth;
+            const timeScale = timeWidth / timeActualWidth;
+            const timeFinalSize = Math.floor(timeTestSize * timeScale * 0.9); // 0.9でマージン確保
+            timeElement.style.fontSize = timeFinalSize + 'px';
+            
+            // 日付用フォントサイズ計算（50vw幅）
+            const dateWidth = window.innerWidth * 0.5;
+            const dateTestSize = 100;
+            dateElement.style.fontSize = dateTestSize + 'px';
+            const dateActualWidth = dateElement.scrollWidth;
+            const dateScale = dateWidth / dateActualWidth;
+            const dateFinalSize = Math.floor(dateTestSize * dateScale * 0.9); // 0.9でマージン確保
+            dateElement.style.fontSize = dateFinalSize + 'px';
+        }
+        
+        // 初期化と更新
+        updateClock();
+        calculateFontSize();
+        
+        // 1秒ごとに時刻更新
+        setInterval(updateClock, 1000);
+        
+        // ウィンドウリサイズ時にフォントサイズ再計算
+        window.addEventListener('resize', calculateFontSize);
+        
+        // 画面回転時にもフォントサイズ再計算
+        window.addEventListener('orientationchange', () => {
+            setTimeout(calculateFontSize, 100);
+        });
+    </script>
+</body>
+</html>
