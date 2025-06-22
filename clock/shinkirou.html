@@ -137,7 +137,7 @@
         }
         
         #lap-times {
-            margin-top: 20px;
+            margin-top: 10px;
             font-size: 18px;
             text-align: left;
             max-width: 800px;
@@ -145,17 +145,17 @@
             background-color: #111;
             border: 1px solid #333;
             border-radius: 4px;
-            padding: 20px;
-            min-height: 120px;
+            padding: 10px;
+            min-height: 80px;
         }
         
         .lap-entry {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-bottom: 1px solid #333;
             display: flex;
             justify-content: space-between;
             border-radius: 4px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             background-color: #1a1a1a;
             font-size: 16px;
         }
@@ -223,7 +223,7 @@
             border: 1px solid #333;
             border-radius: 4px;
             position: relative;
-            margin: 10px 0 5px 0;
+            margin: 5px 0 5px 0;
             overflow: visible;
         }
         
@@ -1072,6 +1072,13 @@
                             overtimeBar.style.left = timeLimitPercent + '%';
                             overtimeBar.style.width = overtimeWidth + '%';
                             
+                            // 超過時間を表示
+                            const overtime = elapsed - timeLimit;
+                            const overtimeSeconds = Math.floor(overtime / 1000);
+                            const overtimeMinutes = Math.floor(overtimeSeconds / 60);
+                            const remainingSeconds = overtimeSeconds % 60;
+                            overtimeBar.innerHTML = `<div style="position: absolute; top: 50%; left: 5px; transform: translateY(-50%); font-size: 18px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); white-space: nowrap;">+${String(overtimeMinutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}</div>`;
+                            
                             // プログレスコンテナに追加
                             document.getElementById('progress-container').appendChild(overtimeBar);
                         }
@@ -1497,7 +1504,7 @@
                 return;
             }
             
-            lapTimesElement.innerHTML = '<h3 style="margin: 5px 0;">通過記録</h3>';
+            lapTimesElement.innerHTML = '';
             
             // 記録済みのフロアを表示
             floorModel.floorRecords.forEach((record, index) => {
@@ -1558,7 +1565,10 @@
                 
                 lapDiv.innerHTML = `
                     <span>${label}</span>
-                    <span>${formatTime(splitTime)} (${formatTime(record.time)})</span>
+                    <span style="display: flex; align-items: center; gap: 10px;">
+                        <span>${formatTime(splitTime)} (${formatTime(record.time)})</span>
+                        <button onclick="editLapTime(${index})" style="padding: 2px 8px; background-color: #333; color: #aaa; border: 1px solid #555; border-radius: 3px; cursor: pointer; font-size: 12px;">編集</button>
+                    </span>
                 `;
                 
                 lapTimesElement.appendChild(lapDiv);
@@ -1593,6 +1603,89 @@
                 
                 lapTimesElement.appendChild(currentLapDiv);
             }
+        }
+        
+        // ラップタイム編集機能
+        function editLapTime(index) {
+            const record = floorModel.floorRecords[index];
+            const currentMinutes = Math.floor(record.time / 60000);
+            const currentSeconds = Math.floor((record.time % 60000) / 1000);
+            
+            // 時間入力ダイアログ（簡易版）
+            const newTimeStr = prompt(
+                `第${record.floor}階層の通過時刻を編集\n現在: ${formatTime(record.time)}\n新しい時刻を「分:秒」形式で入力してください:`,
+                `${currentMinutes}:${String(currentSeconds).padStart(2, '0')}`
+            );
+            
+            if (newTimeStr === null) return; // キャンセル
+            
+            // 入力値をパース
+            const timeParts = newTimeStr.split(':');
+            if (timeParts.length !== 2) {
+                alert('正しい形式で入力してください（例: 45:30）');
+                return;
+            }
+            
+            const minutes = parseInt(timeParts[0]);
+            const seconds = parseInt(timeParts[1]);
+            
+            if (isNaN(minutes) || isNaN(seconds) || minutes < 0 || seconds < 0 || seconds >= 60) {
+                alert('無効な時刻です');
+                return;
+            }
+            
+            const newTime = minutes * 60000 + seconds * 1000;
+            
+            // 前後の記録との整合性チェック
+            const prevTime = index > 0 ? floorModel.floorRecords[index - 1].time : 0;
+            const nextTime = index < floorModel.floorRecords.length - 1 ? floorModel.floorRecords[index + 1].time : Infinity;
+            
+            if (newTime <= prevTime) {
+                alert(`第${record.floor}階層の時刻は、第${record.floor - 1}階層より後である必要があります`);
+                return;
+            }
+            
+            if (newTime >= nextTime) {
+                alert(`第${record.floor}階層の時刻は、第${record.floor + 1}階層より前である必要があります`);
+                return;
+            }
+            
+            // 記録を更新
+            floorModel.floorRecords[index].time = newTime;
+            
+            // 編集によってovertime状態が変わる可能性があるため、モデルの状態を再計算
+            const now = getDebugTime();
+            const currentElapsed = floorModel.getElapsedTime(now);
+            
+            // 編集した階層が最後の記録で、かつ失敗状態だった場合
+            if (floorModel.isFailed && index === floorModel.floorRecords.length - 1) {
+                const editedFloor = record.floor;
+                const timeLimit = FLOOR_LIMITS[editedFloor];
+                
+                // 編集後の時刻が制限時間内になった場合
+                if (newTime <= timeLimit) {
+                    // 失敗状態をリセットして進行を再開
+                    floorModel.isFailed = false;
+                    floorModel.failureType = null;
+                    // 編集した階層の次に進む
+                    floorModel.currentFloor = editedFloor + 1;
+                    
+                    // 第4階層をクリアしていた場合は完了状態に
+                    if (editedFloor === 4) {
+                        floorModel.isCompleted = true;
+                        floorModel.currentFloor = 0;
+                    }
+                }
+            }
+            
+            // overtimeプログレスバーを削除（存在する場合）
+            const existingOvertimeBar = document.getElementById('overtime-progress');
+            if (existingOvertimeBar) {
+                existingOvertimeBar.remove();
+            }
+            
+            // 表示を更新
+            updateAllViews();
         }
         
         // 初期化
