@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             background-color: #000;
             color: #fff;
@@ -20,14 +21,14 @@
             flex-direction: column;
             overflow: hidden;
         }
-        
+
         #menu {
             display: flex;
             padding: 5px;
             gap: 10px;
             background-color: #111;
         }
-        
+
         .menu-item {
             padding: 5px 12px;
             cursor: pointer;
@@ -38,16 +39,16 @@
             text-decoration: none;
             color: #fff;
         }
-        
+
         .menu-item:hover {
             background-color: #333;
         }
-        
+
         .menu-item.active {
             background-color: #444;
             border-color: #666;
         }
-        
+
         #content {
             flex: 1;
             display: flex;
@@ -57,7 +58,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         #mirage-mode {
             width: 100%;
             height: 100%;
@@ -69,23 +70,23 @@
             overflow-y: auto;
             overflow-x: hidden;
         }
-        
+
         /* 蜃気楼モード用スタイル */
         #mirage-info {
             text-align: center;
             margin-bottom: 10px;
         }
-        
+
         #current-time::-webkit-scrollbar {
             display: none;
         }
-        
+
         #floor-indicators {
             display: flex;
             gap: 15px;
-            margin: 10px 0 5px 0;
+            margin: 10px 0 0 0;
         }
-        
+
         .floor-indicator {
             padding: 10px 20px;
             font-size: 18px;
@@ -95,167 +96,167 @@
             color: #fff;
             transition: all 0.2s;
         }
-        
+
         .floor-indicator.completed {
             background-color: #1a4d1a;
             border-color: #2d7a2d;
         }
-        
+
         .floor-indicator.current {
             background-color: #2d4d7a;
             border-color: #4d7abd;
         }
-        
+
         .floor-indicator.final-completed {
             background-color: #1a4d1a;
             border-color: #2d7a2d;
             color: #90EE90;
         }
-        
+
         .floor-indicator.failed {
             background-color: #4d1a1a;
             border-color: #7a2d2d;
             color: #ff6666;
         }
-        
+
         .floor-indicator.floor-failed {
             background-color: #1a4d1a;
             border-color: #2d7a2d;
             color: #ffdd00;
         }
-        
+
         .floor-indicator.warning {
             background-color: #4d4d1a;
             border-color: #7a7a2d;
             color: #fff;
         }
-        
+
         .floor-indicator.danger {
             background-color: #4d1a1a;
             border-color: #7a2d2d;
             color: #fff;
         }
-        
+
         #lap-times {
-            margin-top: 10px;
+            margin-top: 5px;
             font-size: 18px;
             text-align: left;
             max-width: 800px;
             width: 100%;
-            background-color: #111;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 10px;
-            min-height: 80px;
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            min-height: auto;
         }
-        
+
         .lap-entry {
-            padding: 6px 10px;
-            border-bottom: 1px solid #333;
+            padding: 4px 10px;
+            border: 1px solid #333;
             display: flex;
             justify-content: space-between;
-            border-radius: 4px;
-            margin-bottom: 2px;
+            border-radius: 0;
+            margin-bottom: 0;
             background-color: #1a1a1a;
-            font-size: 16px;
+            font-size: 14px;
+            line-height: 1.2;
         }
-        
+
         .lap-entry.completed {
             background-color: #1a4d1a;
-            border: 2px solid #2d7a2d;
+            border-color: #2d7a2d;
             color: #fff;
         }
-        
+
         .lap-entry.final-completed {
             background-color: #1a4d1a;
-            border: 2px solid #2d7a2d;
+            border-color: #2d7a2d;
             color: #90EE90;
         }
-        
+
         .lap-entry.failed {
             background-color: #4d1a1a;
-            border: 2px solid #7a2d2d;
+            border-color: #7a2d2d;
             color: #ff6666;
         }
-        
+
         .lap-entry.floor-failed {
             background-color: #1a4d1a;
-            border: 2px solid #2d7a2d;
+            border-color: #2d7a2d;
             color: #ffdd00;
         }
-        
+
         .lap-entry.current {
             background-color: #2d4d7a;
-            border: 2px solid #4d7abd;
+            border-color: #4d7abd;
             color: #fff;
         }
-        
+
         .lap-entry.warning {
             background-color: #4d4d1a;
-            border: 2px solid #7a7a2d;
+            border-color: #7a7a2d;
             color: #fff;
         }
-        
+
         .lap-entry.danger {
             background-color: #4d1a1a;
-            border: 2px solid #7a2d2d;
+            border-color: #7a2d2d;
             color: #fff;
         }
-        
+
         #status-info {
             margin: 5px 0;
         }
-        
+
         .warning-text {
             color: #ffcc00;
         }
-        
+
         .danger-text {
             color: #ff6666;
         }
-        
+
         /* プログレスバー用スタイル */
         #progress-container {
             width: 100%;
             max-width: 800px;
-            height: 50px;
+            height: 40px;
             background-color: #111;
             border: 1px solid #333;
             border-radius: 4px;
             position: relative;
-            margin: 5px 0 5px 0;
             overflow: visible;
         }
-        
+
         .progress-bar {
             position: absolute;
             height: 100%;
             transition: width 0.1s linear;
         }
-        
+
         #current-progress {
             background-color: #4d7abd;
             z-index: 1;
         }
-        
+
         #current-progress.overtime {
             background-color: #cc9900;
         }
-        
+
         .progress-bar.overtime {
             background-color: #cc4444;
             z-index: 3;
         }
-        
+
         #current-progress.failed {
             background-color: #cc4444;
         }
-        
+
         #current-progress.floor-failed {
             background-color: #2d7a2d;
             color: #ffdd00;
         }
-        
+
         #current-segment-time {
             position: absolute;
             top: 50%;
@@ -264,10 +265,10 @@
             font-size: 18px;
             font-weight: bold;
             color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
             white-space: nowrap;
         }
-        
+
         .completed-segment {
             position: absolute;
             height: 100%;
@@ -280,25 +281,25 @@
             color: #fff;
             font-size: 18px;
             font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
             overflow: hidden;
         }
-        
+
         .completed-segment.failed {
             background-color: #cc4444;
         }
-        
+
         .completed-segment.floor-failed {
             background-color: #2d7a2d;
             color: #ffdd00;
         }
-        
+
         #current-progress {
             background-color: #4d7abd;
             z-index: 1;
         }
-        
-        
+
+
         .floor-marker {
             position: absolute;
             width: 2px;
@@ -306,15 +307,15 @@
             background-color: #666;
             z-index: 1;
         }
-        
+
         .floor-marker.danger {
             background-color: #ff6666;
         }
-        
+
         .floor-marker.warning {
             background-color: #ffcc00;
         }
-        
+
         .floor-label {
             position: absolute;
             top: 0;
@@ -323,79 +324,79 @@
             white-space: nowrap;
             color: #888;
         }
-        
-        
+
+
         .floor-label.current {
             color: #4d7abd;
             font-weight: bold;
         }
-        
+
         .floor-label.completed {
             color: #2d7a2d;
             font-weight: bold;
         }
-        
+
         .floor-label.final-completed {
             color: #90EE90;
             font-weight: bold;
         }
-        
+
         .floor-label.failed {
             color: #ff6666;
             font-weight: bold;
         }
-        
+
         .floor-label.floor-failed {
             color: #ffdd00;
             font-weight: bold;
         }
-        
+
         .floor-label.warning {
             color: #ffcc00;
             font-weight: bold;
         }
-        
+
         .floor-label.danger {
             color: #ff6666;
             font-weight: bold;
         }
-        
+
         .floor-marker.current {
             background-color: #4d7abd;
         }
-        
+
         .floor-marker.completed {
             background-color: #2d7a2d;
         }
-        
+
         .floor-marker.final-completed {
             background-color: #90EE90;
         }
-        
+
         .floor-marker.failed {
             background-color: #ff6666;
         }
-        
+
         .floor-marker.floor-failed {
             background-color: #ffdd00;
         }
-        
+
         .floor-marker.warning {
             background-color: #ffcc00;
         }
-        
+
         .floor-marker.danger {
             background-color: #ff6666;
         }
-        
+
         #progress-time-labels {
             position: relative;
             width: 100%;
             max-width: 800px;
-            height: 20px;
+            height: 15px;
             margin-top: 0px;
         }
-        
+
         /* デバッグ用スタイル */
         #debug-panel {
             position: absolute;
@@ -412,20 +413,20 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
             z-index: 9;
         }
-        
+
         #debug-panel.show {
             display: block;
         }
-        
+
         #debug-panel h4 {
             margin: 0 0 5px 0;
             color: #ffcc00;
         }
-        
+
         #debug-panel div {
             margin: 2px 0;
         }
-        
+
         .debug-toggle {
             position: absolute;
             top: 10px;
@@ -438,12 +439,12 @@
             border-radius: 4px;
             z-index: 10;
         }
-        
+
         #current-time.debug-active {
             border-color: #ffcc00 !important;
             background-color: rgba(255, 204, 0, 0.1);
         }
-        
+
         #current-time.debug-active::after {
             content: "時刻設定中";
             position: absolute;
@@ -457,7 +458,7 @@
             border-radius: 3px;
             white-space: nowrap;
         }
-        
+
         /* ステップインジケーター */
         #step-indicator {
             width: 100%;
@@ -465,21 +466,21 @@
             margin: 5px 0 5px 0;
             padding: 5px;
         }
-        
+
         .step-container {
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
         }
-        
+
         .step {
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
         }
-        
+
         .step-circle {
             width: 40px;
             height: 40px;
@@ -497,29 +498,29 @@
             color: #fff;
             line-height: 1;
         }
-        
+
         .step.completed .step-circle {
             background-color: #2d7a2d;
             border-color: #2d7a2d;
         }
-        
+
         .step.current .step-circle {
             background-color: #4d7abd;
             border-color: #4d7abd;
             box-shadow: 0 0 10px rgba(77, 122, 189, 0.5);
         }
-        
+
         .step.failed .step-circle {
             background-color: #cc4444;
             border-color: #cc4444;
         }
-        
+
         .step.floor-failed .step-circle {
             background-color: #2d7a2d;
             border-color: #2d7a2d;
         }
-        
-        
+
+
         .step-line {
             width: 80px;
             height: 3px;
@@ -527,15 +528,15 @@
             position: relative;
             z-index: 1;
         }
-        
+
         .step-line.completed {
             background-color: #2d7a2d;
         }
-        
+
         .step-line.time-over {
             background-color: #cc4444;
         }
-        
+
         .step-remaining-time {
             position: absolute;
             top: -25px;
@@ -550,15 +551,15 @@
             font-weight: bold;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #fff;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
-        
+
         .step-remaining-time .time-number {
             width: 60px;
             text-align: center;
             font-family: 'Courier New', monospace;
         }
-        
+
         /* セグメント時間ラベル */
         #segment-time-labels {
             position: absolute;
@@ -567,47 +568,52 @@
             height: 20px;
             pointer-events: none;
         }
-        
+
         .segment-time-label {
             position: absolute;
             font-size: 14px;
             font-weight: bold;
             transform: translateX(-50%);
             white-space: nowrap;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
-        
+
         .segment-time-label.seg-completed {
             color: #2d7a2d;
         }
-        
+
         .segment-time-label.seg-current {
             color: #4d7abd;
         }
-        
+
         .segment-time-label.seg-danger {
             color: #ff6666;
         }
-        
+
         .segment-time-label.seg-warning {
             color: #ffcc00;
         }
     </style>
 </head>
+
 <body>
     <div id="menu">
         <a href="index.html" class="menu-item">時計</a>
         <a href="shinkirou.html" class="menu-item active">蜃気楼</a>
     </div>
-    
+
     <div id="content">
         <div class="debug-toggle" id="debug-toggle-btn">時刻設定</div>
         <div id="mirage-mode">
             <div id="mirage-info">
-                <div id="current-time" style="margin-bottom: 5px; text-align: center; font-size: 36px; color: #aaa; padding: 2px 16px; border: 2px solid transparent; border-radius: 6px; position: relative; min-height: 36px;"></div>
-                <div id="elapsed-time" style="margin-bottom: 5px; text-align: center; font-size: 84px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); line-height: 1;">+00:00:00</div>
+                <div id="current-time"
+                    style="margin-bottom: 5px; text-align: center; font-size: 36px; color: #aaa; padding: 2px 16px; border: 2px solid transparent; border-radius: 6px; position: relative; min-height: 36px;">
+                </div>
+                <div id="elapsed-time"
+                    style="margin-bottom: 5px; text-align: center; font-size: 84px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); line-height: 1;">
+                    +00:00:00</div>
             </div>
-            
+
             <div id="step-indicator">
                 <div class="step-container">
                     <div class="step" data-floor="1">
@@ -629,10 +635,11 @@
                         <div class="step-remaining-time" id="remaining-time-4"></div>
                         <div class="step-circle">4層</div>
                     </div>
-                    <button id="clear-button-right" style="position: absolute; right: 0; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; visibility: hidden;">クリア</button>
+                    <button id="clear-button-right"
+                        style="position: absolute; right: 0; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; visibility: hidden;">クリア</button>
                 </div>
             </div>
-            
+
             <div id="progress-container">
                 <div id="completed-segments"></div>
                 <div id="current-progress" class="progress-bar">
@@ -646,28 +653,22 @@
             </div>
             <div id="progress-time-labels">
                 <div class="floor-label" style="left: 0%;">0分</div>
-                <div class="floor-label" data-floor="1" style="left: 55.56%;">50分</div>
-                <div class="floor-label" data-floor="2" style="left: 66.67%;">60分</div>
-                <div class="floor-label" data-floor="3" style="left: 77.78%;">70分</div>
-                <div class="floor-label" data-floor="4" style="left: 100%;">90分</div>
+                <div class="floor-label" data-floor="1" style="left: 55.56%;">50分(1層)</div>
+                <div class="floor-label" data-floor="2" style="left: 66.67%;">60分(2層)</div>
+                <div class="floor-label" data-floor="3" style="left: 77.78%;">70分(3層)</div>
+                <div class="floor-label" data-floor="4" style="left: 100%;">90分(4層)</div>
             </div>
-            <div id="progress-floor-labels" style="position: relative; width: 100%; max-width: 800px; height: 15px; font-size: 11px; color: #999;">
-                <div class="floor-label" data-floor="1" style="left: 55.56%;">(1層)</div>
-                <div class="floor-label" data-floor="2" style="left: 66.67%;">(2層)</div>
-                <div class="floor-label" data-floor="3" style="left: 77.78%;">(3層)</div>
-                <div class="floor-label" data-floor="4" style="left: 100%;">(4層)</div>
-            </div>
-            
-            
+
+
             <div id="lap-times"></div>
         </div>
     </div>
-    
+
     <div id="debug-panel">
         <h4>デバッグ用時刻設定</h4>
         <div id="debug-controls"></div>
     </div>
-    
+
     <script>
         // ========== モデル層 ==========
         // フロア進行状態を管理するモデル
@@ -675,7 +676,7 @@
             constructor() {
                 this.reset();
             }
-            
+
             reset() {
                 this.startTime = null;
                 this.currentFloor = 0;  // 0: 未開始, 1-4: 各フロア
@@ -684,7 +685,7 @@
                 this.isFailed = false; // 足切りで失敗
                 this.failureType = null; // 'floor' (階層足切り) or 'session' (全体時間切れ)
             }
-            
+
             startSession(startTime) {
                 this.startTime = startTime;
                 this.currentFloor = 1;
@@ -693,21 +694,21 @@
                 this.isFailed = false;
                 this.failureType = null;
             }
-            
+
             clearCurrentFloor(currentTime) {
                 if (!this.startTime || this.currentFloor === 0 || this.isCompleted) {
                     return false;
                 }
-                
+
                 const elapsed = currentTime - this.startTime;
-                
+
                 // 現在のフロアの記録を追加
                 this.floorRecords.push({
                     floor: this.currentFloor,
                     time: elapsed,
                     timestamp: currentTime
                 });
-                
+
                 // 次のフロアへ進行または完了
                 if (this.currentFloor === 4) {
                     this.isCompleted = true;
@@ -715,62 +716,62 @@
                 } else {
                     this.currentFloor++;
                 }
-                
+
                 return true;
             }
-            
+
             getElapsedTime(currentTime) {
                 if (!this.startTime) return 0;
-                
+
                 // 完了済みまたは失敗済みの場合は最後の記録の時間を返す
                 if ((this.isCompleted || this.isFailed) && this.floorRecords.length > 0) {
                     return this.floorRecords[this.floorRecords.length - 1].time;
                 }
-                
+
                 return currentTime - this.startTime;
             }
-            
+
             getProgressPercent(currentTime) {
                 const elapsed = this.getElapsedTime(currentTime);
                 return Math.min((elapsed / (90 * 60 * 1000)) * 100, 100);
             }
-            
+
             isActive() {
                 return this.startTime !== null && !this.isCompleted && !this.isFailed;
             }
         }
-        
+
         // ========== グローバル変数 ==========
         const floorModel = new FloorProgressionModel();
         let mirageInterval = null;
         let sessionStartTime = null;
         let sessionEndTime = null;
-        
+
         const FLOOR_LIMITS = {
             1: 50 * 60 * 1000,  // 50分
             2: 60 * 60 * 1000,  // 60分
             3: 70 * 60 * 1000,  // 70分
             4: 90 * 60 * 1000   // 90分（セッション終了）
         };
-        
+
         // デバッグ用変数
         let debugTimeOffset = 0; // ミリ秒単位の時間オフセット
         let showDebug = false;
-        
+
         function toggleDebug() {
             showDebug = !showDebug;
             document.getElementById('debug-panel').classList.toggle('show', showDebug);
-            
+
             // 現在時刻のハイライト状態を切り替え
             const currentTimeElement = document.getElementById('current-time');
             currentTimeElement.classList.toggle('debug-active', showDebug);
-            
+
             if (showDebug) {
                 updateDebugInfo();
                 setupDebugControls();
             }
         }
-        
+
         function setupDebugControls() {
             const controls = document.getElementById('debug-controls');
             controls.innerHTML = `
@@ -795,19 +796,19 @@
                 </div>
             `;
         }
-        
+
         function getDebugTime() {
             return new Date(Date.now() + debugTimeOffset);
         }
-        
+
         function updateDebugInfo() {
             // デバッグ情報の更新は不要（本体時刻表示と同じため）
         }
-        
+
         // デバッグ時間操作関数（グローバルに定義）
         function debugChangeTime(offset) {
             debugTimeOffset += offset;
-            
+
             // モデルの状態を保持
             const prevModel = {
                 startTime: floorModel.startTime,
@@ -816,9 +817,9 @@
                 isCompleted: floorModel.isCompleted
             };
             const wasInActiveSession = getNextSession().isActive;
-            
+
             initMirageMode();
-            
+
             // 前後でセッションがアクティブで、かつ進行状況がある場合のみ復元
             // セッション外に移動した場合は状態をリセット（initMirageModeで既に処理済み）
             const newSession = getNextSession();
@@ -833,22 +834,22 @@
                 floorModel.reset();
                 updateAllViews();
             }
-            
+
             updateDebugInfo();
         }
-        
+
         function debugSetTime(hour, minute) {
             const now = new Date();
             const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0);
             debugTimeOffset = targetTime - now;
-            
+
             // デバッグで直接時刻指定の場合はモデルをリセット
             floorModel.reset();
-            
+
             initMirageMode();
             updateDebugInfo();
         }
-        
+
         function debugReset() {
             debugTimeOffset = 0;
             // リセット時はモデルも完全にリセット
@@ -856,26 +857,26 @@
             initMirageMode();
             updateDebugInfo();
         }
-        
+
         // ========== ビュー更新関数 ==========
-        
-        
+
+
         function getNextSession() {
             const now = getDebugTime();
             const sessions = [];
-            
+
             // 昨日の開始時刻
             sessions.push(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 15, 15, 0));
             sessions.push(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 22, 45, 0));
-            
+
             // 今日の開始時刻
             sessions.push(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 15, 15, 0));
             sessions.push(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 22, 45, 0));
-            
+
             // 明日の開始時刻
             sessions.push(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 15, 15, 0));
             sessions.push(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 22, 45, 0));
-            
+
             // 進行中のセッションを探す
             for (const session of sessions) {
                 const endTime = new Date(session.getTime() + 90 * 60 * 1000);
@@ -883,7 +884,7 @@
                     return { start: session, end: endTime, isActive: true };
                 }
             }
-            
+
             // セッション終了後30分以内かチェック
             for (const session of sessions) {
                 const endTime = new Date(session.getTime() + 90 * 60 * 1000);
@@ -892,7 +893,7 @@
                     return { start: session, end: endTime, isActive: false, isRecentlyEnded: true };
                 }
             }
-            
+
             // 次のセッションを探す
             for (const session of sessions) {
                 if (session > now) {
@@ -900,24 +901,24 @@
                 }
             }
         }
-        
+
         function formatTime(ms) {
             const totalSeconds = Math.floor(ms / 1000);
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = totalSeconds % 60;
-            
+
             return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
-        
+
         function updateProgressBar() {
             const now = getDebugTime();
             const progressBar = document.getElementById('current-progress');
             const completedSegmentsContainer = document.getElementById('completed-segments');
-            
+
             // 経過時間を取得
             const elapsed = floorModel.getElapsedTime(now);
-            
+
             // セッション中のみメイン経過時間表示を更新（+プレフィックス付き）
             const session = getNextSession();
             if (session.isActive || session.isRecentlyEnded) {
@@ -930,24 +931,24 @@
                 // セッション開始前：overtime関連を全てクリア
                 progressBar.style.width = '0%';
                 progressBar.classList.remove('overtime', 'failed', 'floor-failed');
-                
+
                 // overtimeセグメントを削除
                 const existingOvertimeBar = document.getElementById('overtime-progress');
                 if (existingOvertimeBar) {
                     existingOvertimeBar.remove();
                 }
-                
+
                 // 現在セグメント内時間表示をクリア
                 const currentSegmentTime = document.getElementById('current-segment-time');
                 currentSegmentTime.textContent = '';
-                
+
                 // 完了済みセグメントをクリア
                 completedSegmentsContainer.innerHTML = '';
-                
+
                 // セグメント時間ラベルをクリア
                 const segmentTimeLabelsContainer = document.getElementById('segment-time-labels');
                 segmentTimeLabelsContainer.innerHTML = '';
-                
+
                 // ステップインジケーターをリセット
                 const steps = document.querySelectorAll('.step');
                 const stepLines = document.querySelectorAll('.step-line');
@@ -957,39 +958,39 @@
                 stepLines.forEach(line => {
                     line.classList.remove('completed', 'time-over');
                 });
-                
+
                 return; // 以降の処理をスキップ
             }
-            
-            
+
+
             // セグメント時間ラベルコンテナをクリア
             const segmentTimeLabelsContainer = document.getElementById('segment-time-labels');
             segmentTimeLabelsContainer.innerHTML = '';
-            
+
             // 完了済みセグメントを更新
             completedSegmentsContainer.innerHTML = '';
             floorModel.floorRecords.forEach((record, index) => {
                 const segment = document.createElement('div');
                 segment.className = 'completed-segment';
-                
+
                 // 開始位置を計算
                 const startPercent = index === 0 ? 0 : (floorModel.floorRecords[index - 1].time / (90 * 60 * 1000)) * 100;
                 const endPercent = (record.time / (90 * 60 * 1000)) * 100;
                 const segmentWidth = endPercent - startPercent;
-                
+
                 segment.style.left = startPercent + '%';
                 segment.style.width = segmentWidth + '%';
-                
+
                 // ラップタイムを計算して表示
                 const prevTime = index > 0 ? floorModel.floorRecords[index - 1].time : 0;
                 const lapTime = record.time - prevTime;
                 const lapTimeStr = formatTime(lapTime);
-                
+
                 // セグメントが十分な幅がある場合のみテキスト表示
                 if (segmentWidth > 8) { // 8%以上の幅がある場合
                     segment.textContent = lapTimeStr;
                 }
-                
+
                 // 失敗時の最終到達フロアなら特別な色
                 if (floorModel.isFailed && record.floor === floorModel.floorRecords[floorModel.floorRecords.length - 1].floor) {
                     if (floorModel.failureType === 'floor') {
@@ -998,12 +999,12 @@
                         segment.classList.add('failed');
                     }
                 }
-                
+
                 completedSegmentsContainer.appendChild(segment);
-                
+
                 // 完了済みセグメントの時間ラベルは不要（セグメント内に表示済み）
             });
-            
+
             if (!floorModel.isActive()) {
                 // 完了済みまたは失敗済みの場合は最終状態を表示
                 if (floorModel.isCompleted || floorModel.isFailed) {
@@ -1011,7 +1012,7 @@
                     progressBar.style.width = '0%';
                     progressBar.style.left = '0%';
                     progressBar.classList.remove('overtime');
-                    
+
                     if (floorModel.isFailed) {
                         if (floorModel.failureType === 'floor') {
                             progressBar.classList.add('floor-failed');
@@ -1029,14 +1030,14 @@
                 }
                 return;
             }
-            
+
             // アクティブ時：完了済み区間の後から青バーを表示
-            const lastRecordTime = floorModel.floorRecords.length > 0 
-                ? floorModel.floorRecords[floorModel.floorRecords.length - 1].time 
+            const lastRecordTime = floorModel.floorRecords.length > 0
+                ? floorModel.floorRecords[floorModel.floorRecords.length - 1].time
                 : 0;
             const startPercent = (lastRecordTime / (90 * 60 * 1000)) * 100;
             const currentPercent = (elapsed / (90 * 60 * 1000)) * 100;
-            
+
             // クリア直後は青バーをリセット
             if (elapsed <= lastRecordTime) {
                 progressBar.style.left = currentPercent + '%';
@@ -1044,26 +1045,26 @@
             } else {
                 progressBar.style.left = startPercent + '%';
                 progressBar.classList.remove('overtime', 'failed', 'floor-failed');
-                
+
                 // 既存のovertime用セグメントを削除
                 const existingOvertimeBar = document.getElementById('overtime-progress');
                 if (existingOvertimeBar) {
                     existingOvertimeBar.remove();
                 }
-                
+
                 // overtime判定
                 if (floorModel.currentFloor > 0 && floorModel.currentFloor <= 4) {
                     const timeLimit = FLOOR_LIMITS[floorModel.currentFloor];
                     const timeLimitPercent = (timeLimit / (90 * 60 * 1000)) * 100;
-                    
+
                     if (elapsed > timeLimit) {
                         // overtime時：制限時間まで青、超過分は赤色
                         const inTimeWidth = Math.max(0, timeLimitPercent - startPercent);
                         const overtimeWidth = Math.max(0, currentPercent - timeLimitPercent);
-                        
+
                         // 青バー（制限時間内）
                         progressBar.style.width = inTimeWidth + '%';
-                        
+
                         // 赤色バー（超過分）
                         if (overtimeWidth > 0) {
                             const overtimeBar = document.createElement('div');
@@ -1071,14 +1072,14 @@
                             overtimeBar.className = 'progress-bar overtime';
                             overtimeBar.style.left = timeLimitPercent + '%';
                             overtimeBar.style.width = overtimeWidth + '%';
-                            
+
                             // 超過時間を表示
                             const overtime = elapsed - timeLimit;
                             const overtimeSeconds = Math.floor(overtime / 1000);
                             const overtimeMinutes = Math.floor(overtimeSeconds / 60);
                             const remainingSeconds = overtimeSeconds % 60;
-                            overtimeBar.innerHTML = `<div style="position: absolute; top: 50%; left: 5px; transform: translateY(-50%); font-size: 18px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); white-space: nowrap;">+${String(overtimeMinutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}</div>`;
-                            
+                            overtimeBar.innerHTML = `<div style="position: absolute; top: 50%; left: 5px; transform: translateY(-50%); font-size: 18px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); white-space: nowrap;">(+${String(overtimeMinutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')})</div>`;
+
                             // プログレスコンテナに追加
                             document.getElementById('progress-container').appendChild(overtimeBar);
                         }
@@ -1090,21 +1091,21 @@
                     progressBar.style.width = Math.max(0, currentPercent - startPercent) + '%';
                 }
             }
-            
+
             // 現在進行中セグメント内に実行時間表示を追加
             const currentSegmentTime = document.getElementById('current-segment-time');
             if (floorModel.isActive() && floorModel.currentFloor > 0 && floorModel.currentFloor <= 4) {
                 // 現在のセグメントの開始時刻を取得
-                const segmentStartTime = floorModel.currentFloor === 1 ? 0 : 
+                const segmentStartTime = floorModel.currentFloor === 1 ? 0 :
                     floorModel.floorRecords[floorModel.currentFloor - 2].time;
-                
+
                 // セグメント実行時間を計算
                 const segmentElapsed = elapsed - segmentStartTime;
                 const remaining = FLOOR_LIMITS[floorModel.currentFloor] - elapsed;
-                
+
                 currentSegmentTime.textContent = formatTime(segmentElapsed);
                 currentSegmentTime.style.color = 'white';
-                
+
                 if (remaining <= 0) {
                     currentSegmentTime.style.color = '#ff6666';
                 } else if (remaining <= 5 * 60 * 1000) {
@@ -1115,26 +1116,26 @@
             } else {
                 currentSegmentTime.textContent = '';
             }
-            
+
             // プログレスバーの残り時間ラベルは削除（インジケーターに移動）
         }
-        
+
         function updateFloorMarkers() {
             const now = getDebugTime();
             const elapsed = floorModel.getElapsedTime(now);
-            
+
             // 全てのフロア（1-4）について統一的に処理
             for (let floor = 1; floor <= 4; floor++) {
                 const marker = document.querySelector(`.floor-marker[data-floor="${floor}"]`);
                 const timeLabel = document.querySelector(`.floor-label[data-floor="${floor}"]`);
                 const remainingTimeLabel = document.getElementById(`remaining-time-${floor}`);
-                
+
                 // 残り時間ラベルをクリア
                 if (remainingTimeLabel) {
                     remainingTimeLabel.textContent = '';
                     remainingTimeLabel.style.color = '#fff';
                 }
-                
+
                 // 全ての色クラスをリセット
                 if (marker) {
                     marker.classList.remove('current', 'warning', 'danger');
@@ -1142,21 +1143,21 @@
                 if (timeLabel) {
                     timeLabel.classList.remove('current', 'warning', 'danger');
                 }
-                
+
                 // クリア済みフロアは非表示（グレーに戻る）
                 if (floor < floorModel.currentFloor || (floorModel.isCompleted && floor === 4)) {
                     if (marker) marker.style.display = 'none';
                     // ラベルはデフォルト色（グレー）のまま
                 } else {
                     if (marker) marker.style.display = '';
-                    
+
                     // 現在進行中のフロアのみ色付け
                     if (floorModel.isActive() && floor === floorModel.currentFloor) {
                         const timeLimit = FLOOR_LIMITS[floor];
                         const remaining = timeLimit - elapsed;
-                        
+
                         let colorClass = 'current'; // デフォルトは青
-                        
+
                         if (remaining <= 0) {
                             colorClass = 'danger'; // 赤
                         } else if (remaining <= 5 * 60 * 1000) {
@@ -1164,11 +1165,11 @@
                         } else if (remaining <= 10 * 60 * 1000) {
                             colorClass = 'warning'; // 黄
                         }
-                        
+
                         // 目盛り、ラベル、棒を同じ色に統一
                         if (marker) marker.classList.add(colorClass);
                         if (timeLabel) timeLabel.classList.add(colorClass);
-                        
+
                         // 現在進行中の階層に残り時間を表示
                         if (remainingTimeLabel) {
                             if (remaining > 0) {
@@ -1196,21 +1197,21 @@
                 }
             }
         }
-        
-        
-        
+
+
+
         function calculateTimeFont() {
             // 現在時刻は固定サイズ（36px）にして、経過時間の自動調整はしない
             const currentTimeElement = document.getElementById('current-time');
             currentTimeElement.style.fontSize = '36px';
         }
-        
+
         function updateStatusInfo() {
             const now = getDebugTime();
             const session = getNextSession();
             const currentTimeElement = document.getElementById('current-time');
             const elapsedTimeElement = document.getElementById('elapsed-time');
-            
+
             // 現在時刻を表示（秒が変わった時のみ更新）
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -1219,18 +1220,18 @@
             if (currentTimeElement.textContent !== newTimeText) {
                 currentTimeElement.textContent = newTimeText;
             }
-            
+
             // セッション状態に応じて経過時間表示を切り替え
             if (!session.isActive && !session.isRecentlyEnded) {
                 // セッション開始前：次回セッション情報を表示
                 const timeUntilStart = session.start - now;
                 let displayContent = '';
-                
+
                 if (timeUntilStart <= 30 * 60 * 1000) {
                     // 30分以内は警告表示
                     const startHours = String(session.start.getHours()).padStart(2, '0');
                     const startMinutes = String(session.start.getMinutes()).padStart(2, '0');
-                    
+
                     if (timeUntilStart <= 0) {
                         displayContent = '<span class="danger-text" style="font-size: 48px;">セッション開始</span>';
                     } else if (timeUntilStart <= 5 * 60 * 1000) {
@@ -1245,16 +1246,16 @@
                     const startMinutes = String(session.start.getMinutes()).padStart(2, '0');
                     displayContent = `<span style="font-size: 48px;">${startHours}:${startMinutes}開始 -${formatTime(timeUntilStart)}</span>`;
                 }
-                
+
                 elapsedTimeElement.innerHTML = displayContent;
             }
             // セッション中または終了直後：updateProgressBarで経過時間を更新
-            
+
             return session;
         }
-        
+
         let currentSessionState = null;
-        
+
         // 統合的なビュー更新関数
         function updateAllViews() {
             updateProgressBar();
@@ -1263,27 +1264,27 @@
             updateClearButtonVisibility();
             updateStepIndicator();
         }
-        
+
         function updateStepIndicator() {
             const steps = document.querySelectorAll('.step');
             const stepLines = document.querySelectorAll('.step-line');
-            
+
             // 全てのバーをリセット
             stepLines.forEach(line => {
                 line.classList.remove('completed', 'time-over');
             });
-            
+
             steps.forEach((step, index) => {
                 const floor = parseInt(step.dataset.floor);
-                
+
                 // クラスをリセット
                 step.classList.remove('completed', 'current', 'failed', 'floor-failed');
-                
+
                 if (floorModel.currentFloor === 0 && !floorModel.isCompleted && !floorModel.isFailed) {
                     // 未開始
                     return;
                 }
-                
+
                 if (floorModel.isCompleted) {
                     // ゲーム完了時は全ての階層を完了状態に
                     step.classList.add('completed');
@@ -1334,18 +1335,18 @@
                 }
             });
         }
-        
+
         function updateClearButtonVisibility() {
             const clearButton = document.getElementById('clear-button-right');
-            
+
             if (floorModel.isActive() && !floorModel.isCompleted) {
                 clearButton.style.visibility = 'visible';
-                
+
                 // ボタンテキストを現在の階層に応じて変更
                 const now = getDebugTime();
                 const elapsed = floorModel.getElapsedTime(now);
                 const timeLimit = FLOOR_LIMITS[floorModel.currentFloor];
-                
+
                 if (elapsed > timeLimit) {
                     // 時間切れの場合
                     clearButton.textContent = `第${floorModel.currentFloor}層クリア`;
@@ -1359,13 +1360,13 @@
                 clearButton.style.visibility = 'hidden';
             }
         }
-        
+
         function initMirageMode() {
             const session = getNextSession();
             sessionStartTime = session.start;
             sessionEndTime = session.end;
             currentSessionState = session.isActive;
-            
+
             if (session.isActive) {
                 // アクティブセッションの場合、新規開始または継続
                 if (!floorModel.startTime) {
@@ -1375,29 +1376,29 @@
                 // セッション外の場合
                 const now = getDebugTime();
                 const timeUntilStart = session.start - now;
-                
+
                 // セッション外の場合は状態をリセット
                 floorModel.reset();
             }
-            
+
             // 初期表示を強制的にクリア
             const elapsedTimeElement = document.getElementById('elapsed-time');
             elapsedTimeElement.innerHTML = '';
-            
+
             updateStatusInfo();
-            
+
             // タイマーの更新を開始
             if (mirageInterval) clearInterval(mirageInterval);
             mirageInterval = setInterval(() => {
                 // セッション状態の変化をチェック
                 const currentSession = getNextSession();
-                
+
                 // 非アクティブからアクティブに変わった場合、自動的に開始
                 if (!currentSessionState && currentSession.isActive) {
                     initMirageMode();
                     return;
                 }
-                
+
                 // セッション全体の時間切れチェック（90分）
                 if (floorModel.isActive()) {
                     const now = getDebugTime();
@@ -1417,24 +1418,24 @@
                         floorModel.currentFloor = 0;
                     }
                 }
-                
+
                 updateStatusInfo();
                 updateAllViews();
                 updateDebugInfo();
                 currentSessionState = currentSession.isActive;
             }, 1000);
-            
+
             // クリアボタンのイベント設定
             const clearButton = document.getElementById('clear-button-right');
             clearButton.onclick = () => {
                 const now = getDebugTime();
                 const elapsed = floorModel.getElapsedTime(now);
                 const timeLimit = FLOOR_LIMITS[floorModel.currentFloor];
-                
+
                 // 先に青バーをリセット
                 const progressBar = document.getElementById('current-progress');
                 progressBar.style.width = '0%';
-                
+
                 // 時間切れの場合は現在のフロアを記録して失敗終了
                 if (elapsed > timeLimit) {
                     // 現在のフロアの記録を追加
@@ -1451,14 +1452,14 @@
                     // 時間内の場合は通常のクリア処理
                     floorModel.clearCurrentFloor(now);
                 }
-                
+
                 updateAllViews();
             };
-            
+
             // 初期表示の更新
             updateAllViews();
         }
-        
+
         // Floor要素にクラスを適用するヘルパー関数（目盛りラベルは除外）
         function applyFloorClass(floor, className) {
             const timeClass = className + '-time';
@@ -1484,37 +1485,37 @@
                 }
             });
         }
-        
+
         function updateFloorStatesAndLapDisplay() {
             const lapTimesElement = document.getElementById('lap-times');
-            
+
             // 共通のクラスリスト
             const stateClasses = ['completed', 'current', 'final-completed', 'failed', 'floor-failed', 'warning', 'danger'];
             const timeClasses = ['current-time', 'completed-time', 'final-completed-time', 'failed-time', 'floor-failed-time', 'warning-time', 'danger-time'];
-            
+
             // Floor要素をリセット（目盛りラベルは除く - updateFloorMarkersで管理）
             document.querySelectorAll('.floor-indicator').forEach(indicator => indicator.classList.remove(...stateClasses));
             document.querySelectorAll('.floor-label').forEach(label => label.classList.remove(...stateClasses));
             // document.querySelectorAll('.floor-label').forEach(label => label.classList.remove(...timeClasses)); // コメントアウト
             document.querySelectorAll('.floor-marker[data-floor]').forEach(marker => marker.classList.remove(...stateClasses));
-            
+
             // 記録がない場合は非表示
             if (floorModel.floorRecords.length === 0 && !floorModel.isActive()) {
                 lapTimesElement.innerHTML = '';
                 return;
             }
-            
+
             lapTimesElement.innerHTML = '';
-            
+
             // 記録済みのフロアを表示
             floorModel.floorRecords.forEach((record, index) => {
                 const lapDiv = document.createElement('div');
                 lapDiv.className = 'lap-entry';
-                
+
                 // 階層ステータスに応じて色を設定
                 const floor = record.floor;
                 let floorClass = '';
-                
+
                 if (floorModel.isFailed && floor === floorModel.floorRecords[floorModel.floorRecords.length - 1].floor) {
                     // 失敗時の最終到達フロア
                     if (floorModel.failureType === 'floor') {
@@ -1529,15 +1530,15 @@
                     lapDiv.classList.add('completed');
                     // floorClass = 'completed'; // 目盛りの色は変更しない（グレーのまま）
                 }
-                
+
                 // timeout状態の場合は警告色を適用（進行中または失敗終了時）
-                if ((floorModel.isActive() && floor === floorModel.currentFloor) || 
+                if ((floorModel.isActive() && floor === floorModel.currentFloor) ||
                     (floorModel.isFailed && floorModel.failureType === 'session' && floor === floorModel.floorRecords[floorModel.floorRecords.length - 1].floor)) {
                     const now = getDebugTime();
                     const elapsed = floorModel.getElapsedTime(now);
                     const timeLimit = FLOOR_LIMITS[floor];
                     const remaining = timeLimit - elapsed;
-                    
+
                     if (remaining <= 0) {
                         lapDiv.classList.remove('completed', 'failed', 'floor-failed');
                         lapDiv.classList.add('danger');
@@ -1552,116 +1553,120 @@
                         floorClass = 'warning';
                     }
                 }
-                
+
                 // Floor要素に同じクラスを適用
                 if (floorClass) {
                     applyFloorClass(floor, floorClass);
                 }
-                
+
                 const prevTime = index > 0 ? floorModel.floorRecords[index - 1].time : 0;
                 const splitTime = record.time - prevTime;
-                
+
                 const label = `第${record.floor}階層`;
-                
+
                 lapDiv.innerHTML = `
                     <span>${label}</span>
                     <span style="display: flex; align-items: center; gap: 10px;">
                         <span>${formatTime(splitTime)} (${formatTime(record.time)})</span>
-                        <button onclick="editLapTime(${index})" style="padding: 2px 8px; background-color: #333; color: #aaa; border: 1px solid #555; border-radius: 3px; cursor: pointer; font-size: 12px;">編集</button>
+                        <button onclick="editLapTime(${index})" style="padding: 2px 4px; background-color: #333; color: #aaa; border: 1px solid #555; border-radius: 3px; cursor: pointer; font-size: 12px; line-height: 0;">
+                            <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11.3312 3.56837C12.7488 2.28756 14.9376 2.33009 16.3038 3.6963L16.4318 3.83106C17.6712 5.20294 17.6712 7.29708 16.4318 8.66895L16.3038 8.80372L10.0118 15.0947C9.68833 15.4182 9.45378 15.6553 9.22179 15.8457L8.98742 16.0225C8.78227 16.1626 8.56423 16.2832 8.33703 16.3828L8.10753 16.4756C7.92576 16.5422 7.73836 16.5902 7.5216 16.6348L6.75695 16.7705L4.36339 17.169C4.22053 17.1928 4.06908 17.2188 3.94054 17.2285C3.84177 17.236 3.70827 17.2386 3.56261 17.2031L3.41417 17.1543C3.19115 17.0586 3.00741 16.8908 2.89171 16.6797L2.84581 16.5859C2.75951 16.3846 2.76168 16.1912 2.7716 16.0596C2.7813 15.931 2.80736 15.7796 2.83117 15.6367L3.2296 13.2432L3.36437 12.4785C3.40893 12.2616 3.45789 12.0745 3.52453 11.8926L3.6173 11.6621C3.71685 11.4352 3.83766 11.2176 3.97765 11.0127L4.15343 10.7783C4.34386 10.5462 4.58164 10.312 4.90538 9.98829L11.1964 3.6963L11.3312 3.56837ZM5.84581 10.9287C5.49664 11.2779 5.31252 11.4634 5.18663 11.6162L5.07531 11.7627C4.98188 11.8995 4.90151 12.0448 4.83507 12.1963L4.77355 12.3506C4.73321 12.4607 4.70242 12.5761 4.66808 12.7451L4.54113 13.4619L4.14269 15.8555L4.14171 15.8574H4.14464L6.5382 15.458L7.25499 15.332C7.424 15.2977 7.5394 15.2669 7.64953 15.2266L7.80285 15.165C7.95455 15.0986 8.09947 15.0174 8.23644 14.9238L8.3839 14.8135C8.53668 14.6876 8.72225 14.5035 9.0714 14.1543L14.0587 9.16602L10.8331 5.94044L5.84581 10.9287ZM15.3634 4.63673C14.5281 3.80141 13.2057 3.74938 12.3097 4.48048L12.1368 4.63673L11.7735 5.00001L15.0001 8.22559L15.3634 7.86329L15.5196 7.68946C16.2015 6.85326 16.2015 5.64676 15.5196 4.81056L15.3634 4.63673Z"></path>
+                            </svg>
+                        </button>
                     </span>
                 `;
-                
+
                 lapTimesElement.appendChild(lapDiv);
             });
-            
+
             // 現在進行中のフロアのリアルタイム表示
             if (floorModel.isActive() && floorModel.currentFloor > 0 && floorModel.currentFloor <= 4) {
                 const now = getDebugTime();
                 const elapsed = floorModel.getElapsedTime(now);
-                
+
                 // 最新の記録済み時間を取得
-                const lastRecordTime = floorModel.floorRecords.length > 0 
-                    ? floorModel.floorRecords[floorModel.floorRecords.length - 1].time 
+                const lastRecordTime = floorModel.floorRecords.length > 0
+                    ? floorModel.floorRecords[floorModel.floorRecords.length - 1].time
                     : 0;
                 const currentSplitTime = elapsed - lastRecordTime;
-                
+
                 const currentLapDiv = document.createElement('div');
                 currentLapDiv.className = 'lap-entry current';
-                
+
                 // 通過記録（lap）は常に進行中の青色を維持
                 let currentFloorClass = 'current';
-                
+
                 // 現在進行中のFloor要素に同じクラスを適用
                 applyFloorClass(floorModel.currentFloor, currentFloorClass);
-                
+
                 const label = `第${floorModel.currentFloor}階層`;
-                
+
                 currentLapDiv.innerHTML = `
                     <span>${label} (進行中)</span>
                     <span>${formatTime(currentSplitTime)} (${formatTime(elapsed)})</span>
                 `;
-                
+
                 lapTimesElement.appendChild(currentLapDiv);
             }
         }
-        
+
         // ラップタイム編集機能
         function editLapTime(index) {
             const record = floorModel.floorRecords[index];
             const currentMinutes = Math.floor(record.time / 60000);
             const currentSeconds = Math.floor((record.time % 60000) / 1000);
-            
+
             // 時間入力ダイアログ（簡易版）
             const newTimeStr = prompt(
                 `第${record.floor}階層の通過時刻を編集\n現在: ${formatTime(record.time)}\n新しい時刻を「分:秒」形式で入力してください:`,
                 `${currentMinutes}:${String(currentSeconds).padStart(2, '0')}`
             );
-            
+
             if (newTimeStr === null) return; // キャンセル
-            
+
             // 入力値をパース
             const timeParts = newTimeStr.split(':');
             if (timeParts.length !== 2) {
                 alert('正しい形式で入力してください（例: 45:30）');
                 return;
             }
-            
+
             const minutes = parseInt(timeParts[0]);
             const seconds = parseInt(timeParts[1]);
-            
+
             if (isNaN(minutes) || isNaN(seconds) || minutes < 0 || seconds < 0 || seconds >= 60) {
                 alert('無効な時刻です');
                 return;
             }
-            
+
             const newTime = minutes * 60000 + seconds * 1000;
-            
+
             // 前後の記録との整合性チェック
             const prevTime = index > 0 ? floorModel.floorRecords[index - 1].time : 0;
             const nextTime = index < floorModel.floorRecords.length - 1 ? floorModel.floorRecords[index + 1].time : Infinity;
-            
+
             if (newTime <= prevTime) {
                 alert(`第${record.floor}階層の時刻は、第${record.floor - 1}階層より後である必要があります`);
                 return;
             }
-            
+
             if (newTime >= nextTime) {
                 alert(`第${record.floor}階層の時刻は、第${record.floor + 1}階層より前である必要があります`);
                 return;
             }
-            
+
             // 記録を更新
             floorModel.floorRecords[index].time = newTime;
-            
+
             // 編集によってovertime状態が変わる可能性があるため、モデルの状態を再計算
             const now = getDebugTime();
             const currentElapsed = floorModel.getElapsedTime(now);
-            
+
             // 編集した階層が最後の記録で、かつ失敗状態だった場合
             if (floorModel.isFailed && index === floorModel.floorRecords.length - 1) {
                 const editedFloor = record.floor;
                 const timeLimit = FLOOR_LIMITS[editedFloor];
-                
+
                 // 編集後の時刻が制限時間内になった場合
                 if (newTime <= timeLimit) {
                     // 失敗状態をリセットして進行を再開
@@ -1669,7 +1674,7 @@
                     floorModel.failureType = null;
                     // 編集した階層の次に進む
                     floorModel.currentFloor = editedFloor + 1;
-                    
+
                     // 第4階層をクリアしていた場合は完了状態に
                     if (editedFloor === 4) {
                         floorModel.isCompleted = true;
@@ -1677,36 +1682,37 @@
                     }
                 }
             }
-            
+
             // overtimeプログレスバーを削除（存在する場合）
             const existingOvertimeBar = document.getElementById('overtime-progress');
             if (existingOvertimeBar) {
                 existingOvertimeBar.remove();
             }
-            
+
             // 表示を更新
             updateAllViews();
         }
-        
+
         // 初期化
         initMirageMode();
         calculateTimeFont();
-        
+
         // ウィンドウリサイズ時にフォントサイズ再計算
         window.addEventListener('resize', calculateTimeFont);
-        
+
         // 画面回転時にもフォントサイズ再計算
         window.addEventListener('orientationchange', () => {
             setTimeout(calculateTimeFont, 100);
         });
-        
+
         // デバッグボタンのイベントリスナー
         document.getElementById('debug-toggle-btn').addEventListener('click', toggleDebug);
-        
+
         // グローバルスコープに関数を公開
         window.debugChangeTime = debugChangeTime;
         window.debugSetTime = debugSetTime;
         window.debugReset = debugReset;
     </script>
 </body>
+
 </html>
