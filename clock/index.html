@@ -67,23 +67,20 @@
         
         #time, #date {
             white-space: nowrap;
-            overflow-x: auto;
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        #time::-webkit-scrollbar, #date::-webkit-scrollbar {
-            display: none;
+            line-height: 1;
         }
         
         #time {
-            width: 100vw;
+            width: 100%;
             text-align: center;
+            font-size: 20vw;
         }
         
         #date {
-            width: 50vw;
-            text-align: left;
+            width: 100%;
+            text-align: center;
+            font-size: 5vw;
+            margin-top: 2vh;
         }
     </style>
 </head>
@@ -126,28 +123,21 @@
         }
         
         function calculateFontSize() {
-            // 時刻用フォントサイズ計算（100vw幅）
-            const timeWidth = window.innerWidth;
-            const timeTestSize = 100;
-            timeElement.style.fontSize = timeTestSize + 'px';
-            const timeActualWidth = timeElement.scrollWidth;
-            const timeScale = timeWidth / timeActualWidth;
-            const timeFinalSize = Math.floor(timeTestSize * timeScale * 0.9); // 0.9でマージン確保
-            timeElement.style.fontSize = timeFinalSize + 'px';
-            
-            // 日付用フォントサイズ計算（50vw幅）
-            const dateWidth = window.innerWidth * 0.5;
-            const dateTestSize = 100;
-            dateElement.style.fontSize = dateTestSize + 'px';
-            const dateActualWidth = dateElement.scrollWidth;
-            const dateScale = dateWidth / dateActualWidth;
-            const dateFinalSize = Math.floor(dateTestSize * dateScale * 0.9); // 0.9でマージン確保
-            dateElement.style.fontSize = dateFinalSize + 'px';
+            // ビューポート単位で固定サイズを使用
+            // 時刻は画面幅の20%、日付は5%に設定済み（CSSで）
+            console.log('Font sizes set by CSS:', {
+                time: '20vw',
+                date: '5vw',
+                windowWidth: window.innerWidth,
+                windowHeight: window.innerHeight
+            });
         }
         
         // 初期化と更新
         updateClock();
-        calculateFontSize();
+        setTimeout(() => {
+            calculateFontSize();
+        }, 100);
         
         // 1秒ごとに時刻更新
         setInterval(updateClock, 1000);
