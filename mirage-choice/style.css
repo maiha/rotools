@@ -1,0 +1,256 @@
+/* ===== CSS変数 ===== */
+:root {
+    --card-gradient: linear-gradient(135deg, #2a1810, #4a2c18);
+    --flipped-gradient: linear-gradient(135deg, #f5f5dc, #e6ddb3);
+    --gold-color: #d4af37;
+    --brown-text: #8b4513;
+}
+
+/* ===== リセットとベース ===== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #e6e6e6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+}
+
+/* ===== 共通コンポーネント ===== */
+
+/* ===== 選択肢エリア ===== */
+.options-section {
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.options-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.options-grid {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.option-btn {
+    width: 45px;
+    height: 65px;
+    background: var(--card-gradient);
+    border: 2px solid #8b7355;
+    color: var(--gold-color);
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(212, 175, 55, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.option-btn:hover {
+    border-color: var(--gold-color);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(212, 175, 55, 0.3);
+}
+
+.option-btn.selected {
+    background: var(--flipped-gradient);
+    border-color: var(--gold-color);
+    color: transparent;
+    cursor: pointer;
+    transform: rotateY(180deg);
+    transition: all 0.6s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.option-btn.selected:has(.card-mini-image) {
+    background: white;
+}
+
+.option-btn.selected .card-mini-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    transform: rotateY(180deg);
+}
+
+.option-btn.selected .card-mini-text {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--brown-text);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    transform: rotateY(180deg);
+    background: var(--flipped-gradient);
+    border-radius: 6px;
+}
+
+.option-btn.margin-left {
+    margin-left: 1rem;
+}
+
+.reset-btn {
+    background: linear-gradient(45deg, #6c757d, #5a6268);
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* ===== タロットカード表示エリア ===== */
+.card-section {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 400px;
+}
+
+.card-section h1 {
+    font-size: 2.5rem;
+    margin: 0 0 2rem;
+    text-shadow: 0 0 10px #4cc9f0;
+}
+
+.card-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0 1.5rem 0;
+}
+
+.selected-card {
+    width: 180px;
+    height: 260px;
+    background: var(--card-gradient);
+    border: 3px solid #d4af37;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: bold;
+    color: var(--gold-color);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.8),
+        inset 0 2px 8px rgba(212, 175, 55, 0.2);
+    transition: all 0.5s ease;
+    position: relative;
+}
+
+.selected-card::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.selected-card.flipped {
+    background: var(--flipped-gradient);
+    color: var(--brown-text);
+}
+
+.generate-btn {
+    background: linear-gradient(45deg, #4cc9f0, #4895ef);
+    color: white;
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(72, 149, 239, 0.4);
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.generate-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(72, 149, 239, 0.6);
+}
+
+.generate-btn:active {
+    transform: scale(0.95);
+}
+
+/* ===== フッター ===== */
+.footer {
+    margin-top: 2rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+.copyright {
+    font-size: 0.7rem;
+    color: rgba(212, 175, 55, 0.5);
+    font-style: italic;
+}
+
+/* ===== レスポンシブ ===== */
+@media (max-width: 768px) {
+    body {
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .options-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .options-grid {
+        gap: 0.3rem;
+    }
+    
+    .option-btn {
+        width: 35px;
+        height: 50px;
+        font-size: 1rem;
+    }
+    
+    .card-section h1 {
+        font-size: 2rem;
+    }
+    
+    .selected-card {
+        width: 140px;
+        height: 200px;
+        font-size: 3rem;
+    }
+    
+    .generate-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+    }
+}
