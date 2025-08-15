@@ -9,22 +9,32 @@
 </head>
 
 <body>
+    <!-- ヘッダー -->
+    <header class="main-header">
+        <h1 class="main-title">蜃気楼の選択</h1>
+    </header>
+
     <!-- 選択肢エリア -->
-    <section class="options-section">
-        <div class="options-container">
+    <div class="top-area">
+        <section class="options-section">
             <div id="optionsGrid" class="options-grid"></div>
+        </section>
+        <div class="reset-container">
             <button id="reset" class="reset-btn">リセット</button>
         </div>
-    </section>
+    </div>
 
-    <!-- タロットカード表示エリア -->
-    <section class="card-section">
-        <h1>蜃気楼の選択</h1>
-        <div class="card-container">
-            <div id="selectedCard" class="selected-card">?</div>
+    <!-- カルーセルエリア -->
+    <div class="carousel-container">
+        <button class="carousel-nav carousel-prev" id="carouselPrev">‹</button>
+
+        <!-- 演出設定: data-effects属性で利用する演出IDを定義 -->
+        <div class="carousel-track" id="carouselTrack" data-effects="classic,shuffle,slide,cardflip,constellation">
+            <!-- 演出セクションはJavaScriptで動的生成 -->
         </div>
-        <button id="generate" class="generate-btn">蜃気楼の扉を開く</button>
-    </section>
+
+        <button class="carousel-nav carousel-next" id="carouselNext">›</button>
+    </div>
 
     <!-- フッター -->
     <footer class="footer">
