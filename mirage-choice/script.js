@@ -8,7 +8,7 @@ class OptionSelector {
             resetBtn: document.getElementById('reset'),
             optionsGrid: document.getElementById('optionsGrid')
         };
-        
+
         this.init();
     }
 
@@ -29,10 +29,10 @@ class OptionSelector {
     bindEvents() {
         // ランダム生成ボタン
         this.elements.generateBtn.addEventListener('click', () => this.generateRandom());
-        
+
         // リセットボタン
         this.elements.resetBtn.addEventListener('click', () => this.reset());
-        
+
         // 選択肢ボタン
         this.elements.optionsGrid.addEventListener('click', (e) => {
             // ボタン要素を見つける（クリックされた要素の親も含めて）
@@ -40,7 +40,7 @@ class OptionSelector {
             if (button) {
                 const option = button.dataset.option;
                 if (!this.selectedOptions.has(option)) {
-                    this.markAsSelected(option);
+                    this.selectOption(option);
                 } else {
                     // 選択済みの場合は未選択に戻す（部分リセット）
                     this.unmarkSelected(option);
@@ -66,7 +66,7 @@ class OptionSelector {
     loadCardImage(option, onImageLoad, onImageError) {
         const imagePath = `images/cards/${option}.png`;
         const img = new Image();
-        
+
         img.onload = () => onImageLoad(imagePath);
         img.onerror = () => onImageError(option);
         img.src = imagePath;
@@ -127,7 +127,7 @@ class OptionSelector {
         if (button) {
             this.resetButtonState(button);
         }
-        
+
         this.elements.selectedCard.innerHTML = '?';
         this.elements.selectedCard.classList.remove('flipped');
     }
@@ -140,7 +140,7 @@ class OptionSelector {
         this.selectedOptions.clear();
         this.elements.selectedCard.innerHTML = '?';
         this.elements.selectedCard.classList.remove('flipped');
-        
+
         this.elements.optionsGrid.querySelectorAll('.option-btn').forEach(btn => {
             this.resetButtonState(btn);
         });
