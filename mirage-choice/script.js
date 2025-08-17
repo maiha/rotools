@@ -629,6 +629,909 @@ class ConstellationEffect extends DrawEffect {
     }
 }
 
+// !!!!! ライオンエフェクト最重要制約 !!!!!
+// CSS animation, CSS transition, CSS linear は絶対使用禁止
+// 全て requestAnimationFrame による JavaScript 手動制御のみ
+// この制約を破った場合は逆回転などの重大なバグが発生する
+class LionEffect extends DrawEffect {
+
+    // CSS制約を強制適用するヘルパー
+    forceNoAnimation(element) {
+        element.style.transition = 'none';
+        element.style.animation = 'none';
+        element.style.animationDuration = '0s';
+        element.style.transitionDuration = '0s';
+    }
+
+    // 全カードにCSS制約を適用
+    applyNoAnimationToCards(cards) {
+        cards.forEach(card => this.forceNoAnimation(card));
+    }
+
+    async execute(option) {
+        const options = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+        // 全画面オーバーレイを作成
+        const overlay = document.createElement('div');
+        overlay.className = 'fullscreen-overlay lion-overlay';
+        document.body.appendChild(overlay);
+
+        // ライオン演出用HTML作成（3枚固定表示）
+        overlay.innerHTML = `
+            <div class="lion-container-main">
+                <div class="card-track">
+                    <div class="lion-card" data-option="" data-slot="left">
+                        <div class="card-content">?</div>
+                    </div>
+                    <div class="lion-card" data-option="" data-slot="center">
+                        <div class="card-content">?</div>
+                    </div>
+                    <div class="lion-card" data-option="" data-slot="right">
+                        <div class="card-content">?</div>
+                    </div>
+                </div>
+                <div class="lion-container">
+                    <div class="lion">🦁</div>
+                </div>
+            </div>
+        `;
+
+        // 環状配列作成
+        this.cardSequence = this.createCircularCards(options);
+        this.currentStep = 0;
+
+        // カード画像を読み込み
+        const cards = overlay.querySelectorAll('.lion-card');
+        cards.forEach(card => {
+            const opt = card.dataset.option;
+            this.loadCardImageForLion(opt, card);
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // === ライオン演出の3フェーズ実行 ===
+        
+        // フェーズ1: 顔見せフェーズ
+        await this.introductionPhase(overlay, options, option);
+        
+        // フェーズ2: 間引きフェーズ
+        await this.eliminationPhase(overlay, options, option);
+        
+        // フェーズ3: 最終選択フェーズ
+        await this.finalSelectionPhase(overlay, options, option);
+
+        // 大画面結果表示
+        overlay.innerHTML = `<div class="fullscreen-result-card" id="fullscreenLionResult">?</div>`;
+        
+        const resultCard = overlay.querySelector('#fullscreenLionResult');
+        
+        // 結果表示
+        await new Promise(resolve => setTimeout(resolve, 100));
+        this.loadCardImageForFullscreen(option, resultCard);
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // オーバーレイを削除して元のカードに結果表示
+        document.body.removeChild(overlay);
+        this.displayCard(option);
+    }
+
+    createCircularCards(options) {
+        // 環状にするため、十分な数のカードを用意
+        const circularCards = [];
+        for (let i = 0; i < 20; i++) {
+            circularCards.push(options[i % options.length]);
+        }
+        return circularCards;
+    }
+
+    async introductionPhase(overlay, options, targetOption) {
+        const track = overlay.querySelector('.card-track');
+        
+        // ライオンの食べるパターンを考慮したターゲット配置
+        // パターン：中央→(2つスキップ移動して)中央→(1つスキップ移動して)中央 で食べるため、ターゲットがこれらの位置に来ないように調整
+        
+        const targetIndex = options.indexOf(targetOption);
+        let stopOption;
+        
+        // ターゲットが安全な位置に来るような停止カードを選択
+        // ライオンが食べる位置: 停止位置, 停止位置+2, 停止位置+3 を避ける
+        const safeOptions = options.filter((opt, index) => {
+            if (opt === targetOption) return false; // ターゲット自体は除外
+            
+            // この位置で停止した場合、ターゲットが食べられる位置に来るかチェック
+            const stopIndex = index;
+            const targetRelativePos = (targetIndex - stopIndex + options.length) % options.length;
+            
+            // ライオンが食べる相対位置: 
+            // 1回目: 0(中央)
+            // 2回目: 2(2カードスキップ後の中央) 
+            // 3回目: 3(1カードスキップ後の中央)
+            const dangerousPositions = [0, 2, 3];
+            return !dangerousPositions.includes(targetRelativePos);
+        });
+        
+        stopOption = safeOptions.length > 0 
+            ? safeOptions[Math.floor(Math.random() * safeOptions.length)]
+            : options.filter(opt => opt !== targetOption)[0]; // フォールバック
+            
+            
+        
+        // 定数（クラスプロパティに保存）- pixelベースに変更
+        const screenWidth = window.innerWidth;
+        
+        // テンポラリカードを作成して実際のCSS幅を取得
+        const tempCard = document.createElement('div');
+        tempCard.className = 'lion-card';
+        tempCard.style.position = 'absolute';
+        tempCard.style.visibility = 'hidden';
+        track.appendChild(tempCard);
+        
+        // 実際のカード幅を取得（CSS制約込み）
+        const actualCardRect = tempCard.getBoundingClientRect();
+        this.cardWidthPx = actualCardRect.width;
+        tempCard.remove();
+        
+        this.cardGapPx = screenWidth * 0.02; // 2vw相当をpixelに変換（CSS gapと一致）
+        this.cardSpacingPx = this.cardWidthPx + this.cardGapPx; // 実際のカード幅 + ギャップ
+        const centerPositionPx = screenWidth * 0.5; // 50vw相当をpixelに変換
+        const oneLoopDistance = options.length * this.cardSpacingPx; // 1周分の距離（ギャップ込み）
+        
+        // 停止カードが中央（50vw）に来るように逆算
+        const stopOptionIndex = options.indexOf(stopOption);
+        
+        // 中央に停止させたいカードのインデックス（3周目に設定、5周分の配列の真ん中あたり）
+        this.stopCardIndex = options.length * 3 + stopOptionIndex; // 4周目の該当位置
+        
+        // 停止カードの中央が画面中央に来る最終位置を計算（pixel）
+        const cardCenterOffsetPx = this.cardWidthPx / 2; // 実際のカード幅の半分
+        const stopCardLeftPositionPx = centerPositionPx - cardCenterOffsetPx;
+        
+        // 停止カードが中央に来るような配列全体の位置を計算
+        const finalArrayPositionPx = stopCardLeftPositionPx - (this.stopCardIndex * this.cardSpacingPx);
+        
+        // 1周分移動するための開始位置を計算
+        const initialArrayPositionPx = finalArrayPositionPx + oneLoopDistance;
+        
+        // 循環用のカード配列を作成（5周分、Hの右側も確実に表示されるよう）
+        const cycleCards = [];
+        for (let loop = 0; loop < 5; loop++) {
+            for (let i = 0; i < options.length; i++) {
+                cycleCards.push(options[i]);
+            }
+        }
+        
+        // カードトラックのスタイルを更新
+        track.style.position = 'relative';
+        track.style.width = '100%';
+        track.style.height = `${screenWidth * 0.40}px`;
+        track.style.overflow = 'hidden';
+        
+        // カードトラックに配置（absolute positioning）
+        track.innerHTML = cycleCards.map((opt, index) => {
+            const leftPositionPx = initialArrayPositionPx + (index * this.cardSpacingPx);
+            return `
+                <div class="lion-card" data-option="${opt}" data-index="${index}" style="
+                    position: absolute;
+                    left: ${leftPositionPx}px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    opacity: 1;
+                    transition: none;
+                ">
+                    ${opt}
+                </div>
+            `;
+        }).join('');
+        
+        // 全カードに画像読み込み
+        const cards = track.querySelectorAll('.lion-card');
+        
+        // CSS制約を強制適用
+        this.applyNoAnimationToCards(cards);
+        
+        cards.forEach(card => {
+            const opt = card.dataset.option;
+            if (opt !== '?') {
+                this.loadCardImageForLion(opt, card);
+            }
+        });
+        
+        // レンダリング完了を待つ
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        
+        // 1.5秒で1周分移動（右から左へ）
+        
+        // JavaScript手動アニメーション（2秒で右から左へ移動）
+        const duration = 2000; // 2秒
+        const frameRate = 60;
+        const totalFrames = (duration / 1000) * frameRate;
+        
+        let currentFrame = 0;
+        
+        // 各カードの開始位置を記録（pixel）
+        const cardStartPositions = [];
+        cards.forEach((card) => {
+            cardStartPositions.push(parseFloat(card.style.left.replace('px', '')));
+            this.forceNoAnimation(card); // CSS制約強制適用
+        });
+        
+        const animate = () => {
+            currentFrame++;
+            const progress = currentFrame / totalFrames;
+            
+            // 線形進行（等速移動）
+            const currentMoveDistance = oneLoopDistance * progress;
+            
+            cards.forEach((card, index) => {
+                const startPos = cardStartPositions[index];
+                const currentPos = startPos - currentMoveDistance; // 左に移動
+                card.style.left = `${currentPos}px`;
+            });
+            
+            if (currentFrame < totalFrames) {
+                requestAnimationFrame(animate);
+            }
+        };
+        
+        requestAnimationFrame(animate);
+        await new Promise(resolve => setTimeout(resolve, duration));
+        
+        // アニメーション完了後の実際の位置を確認
+        const finalCards = track.querySelectorAll('.lion-card');
+        const actualScreenCenter = screenWidth / 2;
+        
+        finalCards.forEach((card, index) => {
+            const rect = card.getBoundingClientRect();
+            const cardCenter = rect.left + rect.width / 2;
+            const distanceFromCenter = Math.abs(cardCenter - actualScreenCenter);
+            const styleLeft = parseFloat(card.style.left);
+        });
+        
+        
+        await new Promise(resolve => setTimeout(resolve, 200)); // 500ms → 200ms に短縮
+    }
+
+    async eliminationPhase(overlay, options, targetOption) {
+        const track = overlay.querySelector('.card-track');
+        const lion = overlay.querySelector('.lion');
+        
+        // 食べられたカードを記録する配列
+        this.eatenCards = [];
+        
+        // 現在中央にあるカードを特定してデバッグ
+        const cards = track.querySelectorAll('.lion-card');
+        const screenCenter = window.innerWidth / 2;
+        
+        let centerCard = null;
+        let minDistance = Infinity;
+        
+        cards.forEach((card, index) => {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenter = cardRect.left + cardRect.width / 2;
+            const distance = Math.abs(cardCenter - screenCenter);
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                centerCard = card;
+            }
+            
+        });
+        
+        if (centerCard && centerCard.dataset.option !== targetOption) {
+            this.eatenCards.push(centerCard.dataset.option);
+        }
+        
+        // === 1回目：中央のカードを食べる ===
+        await new Promise(resolve => setTimeout(resolve, 0)); // 100ms → 0ms に即座
+        
+        // ライオン出現
+        lion.classList.add('appearing');
+        await new Promise(resolve => setTimeout(resolve, 0)); // 150ms → 0ms に即座
+        
+        // 食べる演出
+        lion.classList.add('eating');
+        
+        // 食べられるカードに食べられる演出を適用（ターゲットカードは絶対に食べない）
+        if (centerCard && centerCard.dataset.option !== targetOption) {
+            centerCard.classList.add('being-eaten');
+            // 食べた瞬間に非表示
+            setTimeout(() => {
+                if (centerCard.parentNode) {
+                    centerCard.style.display = 'none';
+                }
+            }, 400); // 食べるアニメーションの途中で非表示
+        } else if (centerCard && centerCard.dataset.option === targetOption) {
+            // ターゲットカードの場合は食べずに次へ
+            centerCard = null; // 食べない
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // カードを完全に削除（ターゲットカードでない場合のみ）
+        if (centerCard && centerCard.parentNode) {
+            centerCard.remove();
+        }
+        
+        // ライオン退場
+        lion.classList.remove('appearing', 'eating');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // === 2回目：2つ右のカードを食べる（1個おき） ===
+        {
+            // 残りのカードを取得
+            const remainingCards = track.querySelectorAll('.lion-card');
+            
+            // 2つスキップする距離を計算（2カード分）
+            const skipDistance = this.cardSpacingPx * 2; // pixel (1個おき、ギャップ込み)
+            
+            // JavaScript手動アニメーション（0.8秒で2つスキップ移動）
+            const moveDuration = 800; // 0.8秒
+            const moveFrameRate = 60;
+            const moveTotalFrames = (moveDuration / 1000) * moveFrameRate;
+            
+            let moveCurrentFrame = 0;
+            
+            // 各カードの開始位置を記録（pixel）
+            const moveCardStartPositions = [];
+            remainingCards.forEach((card) => {
+                moveCardStartPositions.push(parseFloat(card.style.left.replace('px', '')));
+                this.forceNoAnimation(card);
+            });
+            
+            const moveAnimate = () => {
+                moveCurrentFrame++;
+                const moveProgress = moveCurrentFrame / moveTotalFrames;
+                
+                const currentSkipDistance = skipDistance * moveProgress;
+                
+                remainingCards.forEach((card, index) => {
+                    const moveStartPos = moveCardStartPositions[index];
+                    const moveCurrentPos = moveStartPos - currentSkipDistance; // 左に移動
+                    card.style.left = `${moveCurrentPos}px`;
+                });
+                
+                if (moveCurrentFrame < moveTotalFrames) {
+                    requestAnimationFrame(moveAnimate);
+                }
+            };
+            
+            requestAnimationFrame(moveAnimate);
+            await new Promise(resolve => setTimeout(resolve, moveDuration));
+            
+            // 新しい中央のカードを特定
+            const updatedCards = track.querySelectorAll('.lion-card');
+            
+            let newCenterCard = null;
+            let minDistance = Infinity;
+            
+            updatedCards.forEach((card) => {
+                const cardRect = card.getBoundingClientRect();
+                const cardCenter = cardRect.left + cardRect.width / 2;
+                const distance = Math.abs(cardCenter - screenCenter);
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    newCenterCard = card;
+                }
+            });
+            
+            // ターゲットカードが中央の場合、代替カードを探す
+            let cardToEat = newCenterCard;
+            if (newCenterCard && newCenterCard.dataset.option === targetOption) {
+                // 中央以外で最も近いカードを探す
+                let alternativeCard = null;
+                let minAltDistance = Infinity;
+                
+                updatedCards.forEach((card) => {
+                    if (card !== newCenterCard && card.dataset.option !== targetOption) {
+                        const cardRect = card.getBoundingClientRect();
+                        const cardCenter = cardRect.left + cardRect.width / 2;
+                        const distance = Math.abs(cardCenter - screenCenter);
+                        
+                        if (distance < minAltDistance) {
+                            minAltDistance = distance;
+                            alternativeCard = card;
+                        }
+                    }
+                });
+                cardToEat = alternativeCard;
+            }
+            
+            if (cardToEat && cardToEat.dataset.option !== targetOption) {
+                this.eatenCards.push(cardToEat.dataset.option);
+                
+                // ライオン再出現
+                await new Promise(resolve => setTimeout(resolve, 0));
+                lion.classList.add('appearing');
+                await new Promise(resolve => setTimeout(resolve, 0));
+                
+                // 2回目の食べる演出（ターゲットカードは絶対に食べない）
+                lion.classList.add('eating');
+                cardToEat.classList.add('being-eaten');
+                
+                // 食べた瞬間に非表示
+                setTimeout(() => {
+                    if (cardToEat.parentNode) {
+                        cardToEat.style.display = 'none';
+                    }
+                }, 400);
+                
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                // 2枚目のカードを削除（ターゲットカードでない場合のみ）
+                if (cardToEat && cardToEat.parentNode) {
+                    cardToEat.remove();
+                }
+                
+                // ライオン退場
+                lion.classList.remove('appearing', 'eating');
+                await new Promise(resolve => setTimeout(resolve, 0));
+            }
+        }
+        
+        // === 3回目：さらに2つ右のカードを食べる（1個おき） ===
+        {
+            // 残りのカードを取得
+            const remainingCards = track.querySelectorAll('.lion-card');
+            
+            // 2つスキップする距離を計算（2カード分）
+            const skipDistance = this.cardSpacingPx * 2; // pixel (1個おき、ギャップ込み)
+            
+            // JavaScript手動アニメーション（0.8秒で2つスキップ移動）
+            const moveDuration = 800; // 0.8秒
+            const moveFrameRate = 60;
+            const moveTotalFrames = (moveDuration / 1000) * moveFrameRate;
+            
+            let moveCurrentFrame = 0;
+            
+            // 各カードの開始位置を記録（pixel）
+            const moveCardStartPositions = [];
+            remainingCards.forEach((card) => {
+                moveCardStartPositions.push(parseFloat(card.style.left.replace('px', '')));
+                this.forceNoAnimation(card);
+            });
+            
+            const moveAnimate = () => {
+                moveCurrentFrame++;
+                const moveProgress = moveCurrentFrame / moveTotalFrames;
+                
+                const currentSkipDistance = skipDistance * moveProgress;
+                
+                remainingCards.forEach((card, index) => {
+                    const moveStartPos = moveCardStartPositions[index];
+                    const moveCurrentPos = moveStartPos - currentSkipDistance; // 左に移動
+                    card.style.left = `${moveCurrentPos}px`;
+                });
+                
+                if (moveCurrentFrame < moveTotalFrames) {
+                    requestAnimationFrame(moveAnimate);
+                }
+            };
+            
+            requestAnimationFrame(moveAnimate);
+            await new Promise(resolve => setTimeout(resolve, moveDuration));
+            
+            // 新しい中央のカードを特定
+            const finalCards = track.querySelectorAll('.lion-card');
+            
+            let finalCenterCard = null;
+            let minDistance = Infinity;
+            
+            finalCards.forEach((card) => {
+                const cardRect = card.getBoundingClientRect();
+                const cardCenter = cardRect.left + cardRect.width / 2;
+                const distance = Math.abs(cardCenter - screenCenter);
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    finalCenterCard = card;
+                }
+            });
+            
+            // ターゲットカードは絶対に食べない（中央でなくても）
+            let finalCardToEat = null;
+            
+            // 中央のカードがターゲットでない場合は中央のカードを選ぶ
+            if (finalCenterCard && finalCenterCard.dataset.option !== targetOption) {
+                finalCardToEat = finalCenterCard;
+            } else {
+                // ターゲットでないカードの中で最も中央に近いものを探す
+                let minAltDistance = Infinity;
+                
+                finalCards.forEach((card) => {
+                    if (card.dataset.option !== targetOption) {
+                        const cardRect = card.getBoundingClientRect();
+                        const cardCenter = cardRect.left + cardRect.width / 2;
+                        const distance = Math.abs(cardCenter - screenCenter);
+                        
+                        if (distance < minAltDistance) {
+                            minAltDistance = distance;
+                            finalCardToEat = card;
+                        }
+                    }
+                });
+            }
+            
+            // 最終安全チェック：ターゲットカードは絶対に食べない
+            if (finalCardToEat && finalCardToEat.dataset.option !== targetOption) {
+                this.eatenCards.push(finalCardToEat.dataset.option);
+            } else if (finalCardToEat && finalCardToEat.dataset.option === targetOption) {
+                finalCardToEat = null; // ターゲットカードは食べない
+            } else {
+                finalCardToEat = null;
+            }
+            
+            if (finalCardToEat) {
+                
+                // ライオン最後の出現
+                await new Promise(resolve => setTimeout(resolve, 0));
+                lion.classList.add('appearing');
+                await new Promise(resolve => setTimeout(resolve, 0));
+                
+                // 3回目の食べる演出（ターゲットカードは絶対に食べない）
+                lion.classList.add('eating');
+                finalCardToEat.classList.add('being-eaten');
+                
+                // 食べた瞬間に非表示
+                setTimeout(() => {
+                    if (finalCardToEat.parentNode) {
+                        finalCardToEat.style.display = 'none';
+                    }
+                }, 400);
+                
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                // 3枚目のカードを削除（ターゲットカードでない場合のみ）
+                if (finalCardToEat && finalCardToEat.parentNode) {
+                    finalCardToEat.remove();
+                }
+                
+                // ライオン最終退場
+                lion.classList.remove('appearing', 'eating');
+                await new Promise(resolve => setTimeout(resolve, 0));
+                
+            }
+        }
+    }
+
+    positionCards(track, step) {
+        const cards = Array.from(track.children);
+        
+        // 3つの固定スロットに対応するカードを設定
+        cards.forEach((card, slotIndex) => {
+            const cardIndex = step + slotIndex - 1; // 左(-1), 中央(0), 右(+1)
+            const cardOption = this.cardSequence[cardIndex] || '?';
+            
+            // カード内容更新
+            card.dataset.option = cardOption;
+            
+            // card-content要素の存在確認
+            const contentElement = card.querySelector('.card-content');
+            if (contentElement) {
+                contentElement.textContent = cardOption;
+            } else {
+                // card-content要素がない場合は直接テキストを設定
+                card.textContent = cardOption;
+            }
+            
+            card.style.opacity = '1';
+            
+            // 画像読み込み
+            if (cardOption !== '?') {
+                this.loadCardImageForSavanna(cardOption, card);
+            }
+        });
+    }
+
+    getCenterCard(track, step) {
+        const cards = Array.from(track.children);
+        return cards[1]; // 中央スロット（indexは常に1）
+    }
+
+    rebuildCardTrack(track, originalOptions, eliminatedCount) {
+        // 現在残っているカードのオプションを取得
+        const currentCards = Array.from(track.children);
+        const remainingOptions = currentCards.map(card => card.dataset.option);
+        
+        // 新しい環状配列を作成
+        const newCircularCards = [];
+        for (let i = 0; i < 20; i++) {
+            newCircularCards.push(remainingOptions[i % remainingOptions.length]);
+        }
+        
+        // トラックを再構築
+        track.innerHTML = newCircularCards.map(opt => `
+            <div class="lion-card" data-option="${opt}">
+                <div class="card-content">${opt}</div>
+            </div>
+        `).join('');
+        
+        // 新しいカードに画像を読み込み
+        const newCards = track.querySelectorAll('.lion-card');
+        newCards.forEach(card => {
+            const opt = card.dataset.option;
+            this.loadCardImageForLion(opt, card);
+        });
+    }
+
+    async finalSelectionPhase(overlay, options, targetOption) {
+        const track = overlay.querySelector('.card-track');
+        
+        
+        // 画面幅を取得（pixel単位での計算用）
+        const screenWidth = window.innerWidth;
+        
+        // 既存のカード列から画面内のもののみ保持、画面外右側は削除
+        const allCards = Array.from(track.querySelectorAll('.lion-card'));
+        const screenRightEdge = screenWidth; // 100vw以降は画面外とみなす
+        
+        const existingCards = [];
+        const cardsToRemove = [];
+        
+        allCards.forEach(card => {
+            const cardLeft = parseFloat(card.style.left);
+            if (cardLeft <= screenRightEdge) {
+                // 画面内または画面左端 = 保持
+                existingCards.push(card);
+            } else {
+                // 画面外右側 = 削除
+                cardsToRemove.push(card);
+            }
+        });
+        
+        // 画面外カードを削除
+        cardsToRemove.forEach(card => card.remove());
+        
+        // 既存カードの位置を記録（凍結状態として保持）
+        const existingCardPositions = [];
+        existingCards.forEach(card => {
+            existingCardPositions.push({
+                element: card,
+                startLeft: parseFloat(card.style.left)
+            });
+            this.forceNoAnimation(card);
+        });
+        
+        // 食べられたカードを除外した新しい配列を作成
+        const remainingOptions = options.filter(opt => !this.eatenCards.includes(opt));
+        
+        // 新規列を画面右側に作成（十分な周回分、隙間なし連続配置）
+        // 画面幅に対して十分な枚数を計算（最低5周分以上）
+        const minLoops = Math.max(5, Math.ceil(screenWidth / (remainingOptions.length * this.cardSpacingPx)) + 2);
+        const newCycleCards = [];
+        for (let loop = 0; loop < minLoops; loop++) {
+            for (let i = 0; i < remainingOptions.length; i++) {
+                newCycleCards.push(remainingOptions[i]);
+            }
+        }
+        
+        
+        // 新規列のターゲットカード位置を計算（2周分移動するため）
+        const targetIndex = remainingOptions.indexOf(targetOption);
+        // 2周分移動後にターゲットカードが中央に来る位置を計算
+        // ターゲットカードは新規配列の適切な位置に配置する
+        const newTargetIndex = 2 * remainingOptions.length + targetIndex;
+        
+        
+        // 新規カードのターゲット位置を取得（後で詳細検索）
+        
+        // 既存カード列の最も右にあるカードの位置を取得
+        let lastExistingCardPosition = 0;
+        if (existingCards.length > 0) {
+            // 全ての既存カードから最も右端にあるものを見つける
+            const rightmostCard = existingCards.reduce((rightmost, card) => {
+                const cardLeft = parseFloat(card.style.left);
+                const rightmostLeft = parseFloat(rightmost.style.left);
+                return cardLeft > rightmostLeft ? card : rightmost;
+            });
+            lastExistingCardPosition = parseFloat(rightmostCard.style.left) + this.cardSpacingPx;
+        }
+        
+        // 新規列の開始位置（既存カード列の直後に強制連続配置）
+        const newCardsStartPosition = lastExistingCardPosition || (screenWidth * 1.5); // 既存列の直後、既存カードがなければ画面右外
+        
+        if (existingCards.length > 0) {
+            const lastCard = existingCards[existingCards.length - 1];
+        }
+        const centerPositionPx = screenWidth * 0.5; // 50vw相当（画面中央）
+        const cardCenterOffsetPx = this.cardWidthPx / 2; // 実際のカード幅の半分
+        const targetFinalPosition = centerPositionPx - cardCenterOffsetPx; // カード左端位置（中央配置用）
+        
+        // 新規列をDOMに追加（隙間なし連続配置）
+        const newCardsHTML = newCycleCards.map((opt, index) => {
+            const leftPosition = newCardsStartPosition + (index * this.cardSpacingPx); // カード間隔（ギャップ込み、pixel）
+            return `
+                <div class="lion-card new-card" data-option="${opt}" data-index="${index}" style="
+                    position: absolute;
+                    left: ${leftPosition}px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    opacity: 1;
+                    transition: none;
+                ">
+                    ${opt}
+                </div>
+            `;
+        }).join('');
+        
+        track.insertAdjacentHTML('beforeend', newCardsHTML);
+        
+        // 新規カードの要素を取得
+        const newCards = Array.from(track.querySelectorAll('.new-card'));
+        
+        // 新規カードにCSS制約と画像読み込み
+        newCards.forEach(card => {
+            this.forceNoAnimation(card);
+            const opt = card.dataset.option;
+            if (opt && opt !== '?') {
+                this.loadCardImageForLion(opt, card);
+            }
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        
+        // === 2段階アニメーション（高速→低速）完全分離 ===
+        const oneLoopDistance = remainingOptions.length * this.cardSpacingPx; // 1周分の距離
+        
+        // ターゲットカードが最終的に中央に来る正確な移動距離を計算
+        const targetCard = newCards.find(card => 
+            parseInt(card.dataset.index) === newTargetIndex && 
+            card.dataset.option === targetOption
+        );
+        
+        if (!targetCard) {
+            return;
+        }
+        
+        const targetStartPosition = parseFloat(targetCard.style.left);
+        const totalRequiredDistance = targetStartPosition - targetFinalPosition;
+        
+        
+        // 各カードの開始位置を記録
+        const animationCards = [...existingCardPositions.map(info => info.element), ...newCards];
+        
+        // 移動距離を2段階に分割（高速1周分、低速は残り正確な距離）
+        const fastMoveDistance = oneLoopDistance; // 高速：1周分（ネタバレ防止）
+        const slowMoveDistance = totalRequiredDistance - fastMoveDistance; // 低速：残りの正確な距離
+        
+        
+        // === 連続2段階アニメーション（停止なし） ===
+        const fastDuration = 1500; // 1.5秒
+        // 高速の半分の速度になるよう時間を計算
+        const fastSpeed = fastMoveDistance / fastDuration; // px/ms
+        const slowSpeed = fastSpeed / 2; // 高速の半分
+        const slowDuration = slowMoveDistance / slowSpeed; // 残り距離 ÷ 低速スピード
+        const totalDuration = fastDuration + slowDuration;
+        
+        const frameRate = 60;
+        const totalFrames = (totalDuration / 1000) * frameRate;
+        const fastEndFrame = (fastDuration / 1000) * frameRate;
+        
+        let currentFrame = 0;
+        const animationStartPositions = [];
+        
+        // 開始位置を記録
+        animationCards.forEach(card => {
+            const currentLeft = parseFloat(card.style.left);
+            animationStartPositions.push({
+                element: card,
+                startLeft: currentLeft
+            });
+        });
+        
+        const continuousAnimate = () => {
+            currentFrame++;
+            let currentMoveDistance;
+            
+            if (currentFrame <= fastEndFrame) {
+                // === 高速段階 ===
+                const fastProgress = currentFrame / fastEndFrame;
+                currentMoveDistance = fastMoveDistance * fastProgress;
+                
+            } else {
+                // === 低速段階 ===
+                const slowFrame = currentFrame - fastEndFrame;
+                const slowTotalFrames = totalFrames - fastEndFrame;
+                const slowProgress = slowFrame / slowTotalFrames;
+                const slowStartDistance = fastMoveDistance; // 高速段階完了位置
+                const currentSlowDistance = slowMoveDistance * slowProgress;
+                currentMoveDistance = slowStartDistance + currentSlowDistance;
+                
+            }
+            
+            // カードを移動
+            animationStartPositions.forEach(cardInfo => {
+                const newPos = cardInfo.startLeft - currentMoveDistance;
+                cardInfo.element.style.left = `${newPos}px`;
+            });
+            
+            if (currentFrame < totalFrames) {
+                requestAnimationFrame(continuousAnimate);
+            }
+        };
+        
+        // アニメーション完了を待つ（timeoutではなくPromiseで）
+        await new Promise(resolve => {
+            const checkCompletion = () => {
+                if (currentFrame >= totalFrames) {
+                    resolve();
+                } else {
+                    requestAnimationFrame(checkCompletion);
+                }
+            };
+            requestAnimationFrame(continuousAnimate);
+            checkCompletion();
+        });
+        
+        
+        // === 最終確認: 中央に停止したカードを確認 ===
+        const screenCenter = window.innerWidth / 2;
+        let finalCenterCard = null;
+        let minDistance = Infinity;
+        
+        newCards.forEach((card) => {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenter = cardRect.left + cardRect.width / 2;
+            const distance = Math.abs(cardCenter - screenCenter);
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                finalCenterCard = card;
+            }
+        });
+        
+        if (finalCenterCard) {
+            
+            // 最終カードをハイライト
+            finalCenterCard.classList.add('selected');
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    loadCardImageForLion(option, card) {
+        this.loadCardImage(
+            option,
+            (imagePath) => {
+                card.innerHTML = `<img src="${imagePath}" alt="Card ${option}" class="card-image">`;
+            },
+            (option) => {
+                card.innerHTML = `<div class="card-content">${option}</div>`;
+            }
+        );
+    }
+
+    loadCardImageForFullscreen(option, card) {
+        this.loadCardImage(
+            option,
+            (imagePath) => {
+                card.classList.remove('flipped');
+                card.innerHTML = `<img src="${imagePath}" alt="Card ${option}" class="card-image">`;
+            },
+            (option) => {
+                card.classList.add('flipped');
+                card.textContent = option;
+            }
+        );
+    }
+
+    displayCard(option) {
+        this.loadCardImage(
+            option,
+            (imagePath) => {
+                this.elements.selectedCard.classList.remove('flipped');
+                this.elements.selectedCard.innerHTML = `<img src="${imagePath}" alt="Card ${option}" class="card-image">`;
+            },
+            (option) => {
+                this.elements.selectedCard.classList.add('flipped');
+                this.elements.selectedCard.textContent = option;
+            }
+        );
+    }
+}
+
 const EFFECT_DEFINITIONS = {
     // 利用可能な全演出定義
     classic: { class: ClassicEffect, title: '通常' },
@@ -636,7 +1539,8 @@ const EFFECT_DEFINITIONS = {
     slot: { class: SlotEffect, title: 'スロット' },
     slide: { class: SlideEffect, title: 'スライド' },
     cardflip: { class: CardFlipEffect, title: 'カードフリップ' },
-    constellation: { class: ConstellationEffect, title: '星座' }
+    constellation: { class: ConstellationEffect, title: '星座' },
+    lion: { class: LionEffect, title: 'ライオン' }
 };
 
 // 共通設定

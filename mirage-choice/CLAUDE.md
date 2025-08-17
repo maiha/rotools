@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 【最重要】言語設定
+
+**必須要件**: このプロジェクトでは**日本語でのやりとりが必須**です。
+- 全ての会話は日本語で行うこと
+- コメント・説明・エラーメッセージも日本語で記述すること  
+- ログコンパクション後も日本語を維持すること
+- 英語での応答は禁止
+
+This project **REQUIRES Japanese communication at all times**. All conversations, comments, and responses must be in Japanese, even after log compaction.
 
 ## 【MUST GLOBAL】要求解釈の鉄則 (プロジェクトのCLAUDE.mdより優先)
 
@@ -18,6 +27,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 □ 勝手なリファクタリング
 □ 推測に基づく実装
 □ 親切心からの拡大解釈
+
+## 【重要】デバッグ方針
+
+### 同じ問題が3回以上発生した場合
+**小手先の修正は禁止**。以下の抜本的アプローチを取ること：
+
+1. **根本原因分析**：「なぜこの問題が繰り返し発生するのか？」
+2. **設計レベルでの見直し**：「この機能の設計自体に問題はないか？」
+3. **完全作り直し判断**：「部分修正ではなく、完全に作り直すべきか？」
+4. **実装方針変更**：「異なるアプローチで実装すべきか？」
+
+### デグレループ防止キーワード
+ユーザーが以下を言及した場合は**抜本的修正**を実行：
+- 「同じ問題が再発」
+- 「何度も同じデグレ」  
+- 「小手先の修正でなく」
+- 「根本的に直して」
+- 「1から考えて」
+
+### 抜本的修正の例
+- アニメーション問題 → 連続制御から分離制御に変更
+- 位置計算問題 → 相対計算から絶対計算に変更
+- タイミング問題 → Promise chaining から async/await分離に変更
 
 ## Project Overview
 

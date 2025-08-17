@@ -632,6 +632,149 @@ body {
     50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.8; }
 }
 
+/* ライオン演出スタイル */
+.lion-overlay {
+    background: linear-gradient(to bottom, #ffa500 0%, #ff8c00 30%, #f4a460 60%, #deb887 100%);
+    overflow: hidden;
+}
+
+.lion-container-main {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+
+.card-track {
+    display: flex;
+    align-items: center;
+    gap: 2vw;
+    position: relative;
+}
+
+.card-track.moving {
+    /* transition削除 */
+}
+
+.card-track.stopped {
+    transition: none;
+}
+
+.lion-card {
+    width: 22vw;
+    height: 33vw;
+    min-width: 200px;
+    min-height: 300px;
+    max-width: 300px;
+    max-height: 450px;
+    border: 3px solid #8b4513;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #f5deb3 0%, #deb887 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #8b4513;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    flex-shrink: 0;
+}
+
+.card-track.intro-scrolling .lion-card {
+    transition: opacity 0.1s ease-out;
+}
+
+.card-track.elimination-moving .lion-card {
+    transition: opacity 0.5s ease-out;
+}
+
+.card-track.final-scrolling .lion-card {
+    transition: opacity 0.1s ease-out;
+}
+
+.lion-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.lion-card.being-eaten {
+    animation: eaten 0.8s ease-in-out forwards;
+}
+
+.lion-card.selected {
+    transform: scale(1.2);
+    border-color: #ffd700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+}
+
+.lion-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    pointer-events: none;
+}
+
+.lion {
+    font-size: 24rem; /* 12rem → 24rem に2倍 */
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.5s ease;
+}
+
+.lion.appearing {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.lion.eating {
+    animation: lionEat 0.8s ease-in-out;
+}
+
+.lion-card.selected {
+    transform: translateY(-50%) scale(1.2);
+    border-color: #ffd700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+}
+
+.card-track.final-scrolling {
+    /* animation削除 */
+}
+
+@keyframes eaten {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(0.5) rotateY(90deg);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(0) rotateY(180deg);
+        opacity: 0;
+    }
+}
+
+@keyframes lionEat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+}
+
+/* finalScrollアニメーション削除 */
+
 /* 全画面カードフリップ演出 */
 .fullscreen-card-flip-container {
     width: 100%;
