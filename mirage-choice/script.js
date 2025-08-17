@@ -808,12 +808,10 @@ class OptionSelector {
     }
 
     async showResultDirect(option) {
-        // 上部選択時は演出なしで直接表示（通常の選択と同じエフェクト）
+        // 上部選択時は演出なしで直接表示（中央カードは？のまま保持）
         const button = this.elements.optionsGrid.querySelector(`[data-option="${option}"]`);
 
-        // 現在の演出カードに直接結果表示（演出なし）
-        const effect = this.effects[this.currentEffect];
-        effect.displayCard(option);
+        // 中央のカードは変更せず？のまま保持
 
         // top-areaのカードを表示
         if (button) {
