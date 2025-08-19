@@ -67,9 +67,57 @@ body {
     gap: 0.5rem;
 }
 
-.reset-container {
+.mode-controls {
     position: absolute;
     right: 0;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.mode-toggle {
+    display: flex;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.mode-btn {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.7rem;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.7);
+    background: transparent;
+    min-width: 40px;
+}
+
+.mode-btn-left {
+    border-radius: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mode-btn-right {
+    border-radius: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mode-btn.active {
+    background: linear-gradient(45deg, #4cc9f0, #7209b7);
+    color: white;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mode-btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.reset-container {
+    display: flex;
 }
 
 .reset-btn {

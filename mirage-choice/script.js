@@ -1552,9 +1552,14 @@ class OptionSelector {
     constructor() {
         this.options = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
         this.selectedOptions = new Set();
+        this.cardHistory = []; // 引いた履歴を管理（引いた順）
+        this.isHistoryMode = false; // 表示モード（false: 一覧、true: 履歴）
         this.elements = {
             resetBtn: document.getElementById('reset'),
             optionsGrid: document.getElementById('optionsGrid'),
+            historyGrid: document.getElementById('historyGrid'),
+            historyModeBtn: document.getElementById('historyModeBtn'),
+            listModeBtn: document.getElementById('listModeBtn'),
             carouselTrack: document.getElementById('carouselTrack'),
             carouselPrev: document.getElementById('carouselPrev'),
             carouselNext: document.getElementById('carouselNext')
@@ -1571,10 +1576,12 @@ class OptionSelector {
 
         this.init();
         this.updateCarousel(); // 初期状態設定
+        this.updateModeButtons(); // 初期状態のボタン状態設定
     }
 
     init() {
         this.createOptionButtons();
+        this.createHistoryButtons();
         this.createCarouselSections();
         this.bindEvents();
     }
@@ -1644,9 +1651,24 @@ class OptionSelector {
             .join('');
     }
 
+    createHistoryButtons() {
+        // 履歴グリッドを8枚の「？」で初期化
+        this.elements.historyGrid.innerHTML = Array(8)
+            .fill(null)
+            .map((_, index) => {
+                const extraClass = index === 4 ? ' margin-left' : '';
+                return `<button class="option-btn${extraClass} history-btn" data-history-index="${index}">?</button>`;
+            })
+            .join('');
+    }
+
     bindEvents() {
         // リセットボタン
         this.elements.resetBtn.addEventListener('click', () => this.reset());
+        
+        // モード切り替えボタン
+        this.elements.historyModeBtn.addEventListener('click', () => this.setDisplayMode(true));
+        this.elements.listModeBtn.addEventListener('click', () => this.setDisplayMode(false));
 
         // カルーセルナビゲーション
         this.elements.carouselPrev.addEventListener('click', () => {
@@ -1684,6 +1706,13 @@ class OptionSelector {
                 }
             }
         });
+
+        // 履歴ボタン（クリック機能を無効化）
+        this.elements.historyGrid.addEventListener('click', (e) => {
+            // 履歴表示では何も処理しない（クリック無効化）
+            e.preventDefault();
+            e.stopPropagation();
+        });
     }
 
     selectOption(option) {
@@ -1709,6 +1738,9 @@ class OptionSelector {
             button.classList.add('selected');
             button.style.opacity = '1';
         }
+        
+        // 履歴に追加
+        this.addToHistory(option);
     }
 
     async showResultDirect(option) {
@@ -1723,6 +1755,9 @@ class OptionSelector {
             button.classList.add('selected');
             button.style.opacity = '1';
         }
+        
+        // 履歴に追加
+        this.addToHistory(option);
     }
 
     setEffect(effectName) {
@@ -1850,6 +1885,7 @@ class OptionSelector {
             const randomOption = availableOptions[Math.floor(Math.random() * availableOptions.length)];
             this.showResult(randomOption);
             this.markAsSelected(randomOption);
+            // 履歴追加は showResult 内で行われるため、ここでは不要
         }
     }
 
@@ -1867,6 +1903,9 @@ class OptionSelector {
             this.resetButtonState(button);
         }
 
+        // 履歴からも削除（レアケース対応）
+        this.removeFromHistory(option);
+
         this.elements.selectedCard.innerHTML = '?';
         this.elements.selectedCard.classList.remove('flipped');
     }
@@ -1875,8 +1914,77 @@ class OptionSelector {
         return this.options.filter(option => !this.selectedOptions.has(option));
     }
 
+    updateModeButtons() {
+        if (this.isHistoryMode) {
+            this.elements.historyModeBtn.classList.add('active');
+            this.elements.listModeBtn.classList.remove('active');
+        } else {
+            this.elements.historyModeBtn.classList.remove('active');
+            this.elements.listModeBtn.classList.add('active');
+        }
+    }
+
+    setDisplayMode(isHistoryMode) {
+        this.isHistoryMode = isHistoryMode;
+        
+        if (this.isHistoryMode) {
+            // 履歴表示モードに切り替え
+            this.elements.optionsGrid.style.display = 'none';
+            this.elements.historyGrid.style.display = 'inline-flex';
+        } else {
+            // 一覧表示モードに切り替え
+            this.elements.optionsGrid.style.display = 'inline-flex';
+            this.elements.historyGrid.style.display = 'none';
+        }
+        
+        this.updateModeButtons();
+    }
+
+    addToHistory(option) {
+        if (this.cardHistory.length < 8) {
+            this.cardHistory.push(option);
+            this.updateHistoryDisplay();
+        }
+    }
+
+    removeFromHistory(option) {
+        const index = this.cardHistory.indexOf(option);
+        if (index !== -1) {
+            this.cardHistory.splice(index, 1); // 該当要素を削除、後ろの要素が自動的にshift
+            this.updateHistoryDisplay();
+        }
+    }
+
+    updateHistoryDisplay() {
+        const historyButtons = this.elements.historyGrid.querySelectorAll('.history-btn');
+        
+        // 全てのボタンを初期状態にリセット
+        historyButtons.forEach(button => {
+            button.textContent = '?';
+            button.classList.remove('selected');
+            button.style.opacity = '1';
+        });
+        
+        // 履歴配列の内容で更新（shift後の正しい位置に表示）
+        this.cardHistory.forEach((option, index) => {
+            const button = historyButtons[index];
+            if (button) {
+                this.showMiniCardImage(button, option);
+                button.classList.add('selected');
+            }
+        });
+    }
+
     reset() {
         this.selectedOptions.clear();
+        this.cardHistory = []; // 履歴もクリア
+
+        // 履歴グリッドもリセット
+        this.elements.historyGrid.querySelectorAll('.history-btn').forEach(btn => {
+            btn.textContent = '?';
+            btn.classList.remove('selected');
+            btn.style.opacity = '1';
+        });
 
         // 全ての演出カードをリセット
         Object.values(this.elements).forEach(element => {
