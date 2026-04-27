@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ST</title>
+  <style>
+    :root {
+      --bg: rgba(20, 22, 28, 0.94);
+      --text: #e8ebf2;
+      --muted: #9aa3b2;
+      --line: rgba(255, 255, 255, 0.12);
+      --normal: #3fc16f;
+      --normal-bg: rgba(63, 193, 111, 0.14);
+      --danger: #d95d5d;
+      --danger-bg: rgba(217, 60, 60, 0.62);
+      --inactive: #5e6675;
+      --inactive-bg: rgba(94, 102, 117, 0.14);
+      --focus: #88a8ff;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      user-select: none;
+      overflow: hidden;
+    }
+    body { padding: 0; }
+    .strip {
+      display: grid;
+      grid-template-columns: 52px 42px 1fr auto;
+      gap: 4px;
+      align-items: center;
+      padding: 3px 5px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      transition: background-color 260ms ease, border-color 260ms ease;
+    }
+    .strip.state-inactive { background: var(--inactive-bg); }
+    .strip.state-normal   { background: var(--normal-bg); border-color: rgba(63,193,111,0.32); }
+    .strip.state-danger   { background: var(--danger-bg); border-color: rgba(217,60,60,0.85); }
+
+    input, button { font: inherit; font-size: 12px; }
+    .num {
+      width: 100%;
+      height: 24px;
+      color: var(--text);
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 5px;
+      padding: 0 4px;
+      outline: none;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      transition: border-color 160ms ease;
+    }
+    .num:focus { border-color: var(--focus); }
+
+    button {
+      height: 24px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--text);
+      background: rgba(42,46,55,0.95);
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 180ms ease, border-color 180ms ease;
+    }
+    button:hover { background: rgba(255,255,255,0.10); }
+
+    .bar-shell {
+      position: relative;
+      height: 24px;
+      border-radius: 5px;
+      background: rgba(0,0,0,0.30);
+      border: 1px solid rgba(255,255,255,0.11);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 260ms ease;
+    }
+    .bar-shell:hover { border-color: rgba(255,255,255,0.28); }
+    .strip.state-danger .bar-shell { border-color: rgba(255,255,255,0.55); }
+    .bar-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 0%;
+      background: var(--inactive);
+      transition: background-color 260ms ease;
+    }
+    .strip.refill .bar-fill {
+      transition: background-color 260ms ease, width 250ms ease-out;
+    }
+    .strip.state-normal .bar-fill { background: var(--normal); }
+    .strip.state-danger .bar-fill { background: var(--danger); }
+    .bar-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+    .bar-text small {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-left: 1px;
+    }
+    .bar-num {
+      display: inline-block;
+      min-width: 4ch;
+      text-align: right;
+      font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+      font-feature-settings: "tnum" 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="strip" class="strip state-inactive">
+    <input id="interval" class="num" type="number" min="1" step="0.1" title="周期 (秒)" aria-label="interval">
+    <input id="alert"    class="num" type="number" min="0" step="0.1" title="警告色 切替 (残り秒)" aria-label="alert">
+    <div class="bar-shell" id="barShell" role="button" tabindex="0" title="クリックでResync (Space / Enter / 1)">
+      <div id="barFill" class="bar-fill"></div>
+      <div id="barText" class="bar-text"><span id="barNum" class="bar-num">--</span><small>s</small></div>
+    </div>
+    <button id="stop" type="button" title="停止 (Esc / 0)">Stop</button>
+  </div>
+  <script>
+    (() => {
+      'use strict';
+      const KEY = 'manual-skill-timer-single-v0.2';
+      const REFILL_MS = 250;
+      const WIN_H = 60;
+      const $ = (id) => document.getElementById(id);
+      const strip = $('strip');
+      const intervalEl = $('interval');
+      const alertEl = $('alert');
+      const stopEl = $('stop');
+      const barShellEl = $('barShell');
+      const barFillEl = $('barFill');
+      const barNumEl = $('barNum');
+
+      const clamp = (v, lo, hi, fb) => {
+        const n = Number(v);
+        if (!Number.isFinite(n)) return fb;
+        return Math.min(hi, Math.max(lo, n));
+      };
+
+      const state = {
+        intervalSec: 30,
+        alertSec: 5,
+        lastSyncMs: null,
+        lastCycle: null,
+        refillUntilMs: 0,
+      };
+
+      function load() {
+        try {
+          const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+          if (raw && typeof raw === 'object') {
+            state.intervalSec = clamp(raw.intervalSec, 1, 9999, 30);
+            const incomingAlert = (raw.alertSec !== undefined) ? raw.alertSec : raw.dangerSec;
+            state.alertSec = clamp(incomingAlert, 0, state.intervalSec, 5);
+          }
+        } catch (_) {}
+      }
+
+      function persist() {
+        localStorage.setItem(KEY, JSON.stringify({
+          intervalSec: state.intervalSec,
+          alertSec: state.alertSec,
+        }));
+      }
+
+      function syncInputs() {
+        intervalEl.value = state.intervalSec;
+        alertEl.value = state.alertSec;
+      }
+
+      function resync() {
+        const now = performance.now();
+        state.lastSyncMs = now;
+        state.lastCycle = 0;
+        state.refillUntilMs = now + REFILL_MS;
+      }
+
+      function stop() {
+        state.lastSyncMs = null;
+        state.lastCycle = null;
+        state.refillUntilMs = 0;
+      }
+
+      function compute(nowMs) {
+        if (state.lastSyncMs === null) {
+          return { active: false, remainSec: null, progress: 0, state: 'inactive', cycle: null };
+        }
+        const elapsedSec = Math.max(0, (nowMs - state.lastSyncMs) / 1000);
+        const cycle = Math.floor(elapsedSec / state.intervalSec);
+        const cyclePos = elapsedSec % state.intervalSec;
+        const remainSec = state.intervalSec - cyclePos;
+        const progress = remainSec / state.intervalSec;
+        const s = (remainSec <= state.alertSec) ? 'danger' : 'normal';
+        return { active: true, remainSec, progress, state: s, cycle };
+      }
+
+      function render(nowMs) {
+        const c = compute(nowMs);
+        strip.classList.remove('state-inactive', 'state-normal', 'state-danger', 'refill');
+        strip.classList.add(`state-${c.state}`);
+        if (!c.active) {
+          barFillEl.style.width = '0%';
+          barNumEl.textContent = '--';
+          return;
+        }
+        if (state.lastCycle !== null && c.cycle !== null && c.cycle > state.lastCycle) {
+          state.refillUntilMs = nowMs + REFILL_MS;
+        }
+        state.lastCycle = c.cycle;
+        if (nowMs < state.refillUntilMs) strip.classList.add('refill');
+        barNumEl.textContent = c.remainSec.toFixed(1);
+        barFillEl.style.width = `${Math.max(0, Math.min(100, c.progress * 100))}%`;
+      }
+
+      function tick(nowMs) {
+        render(nowMs);
+        requestAnimationFrame(tick);
+      }
+
+      intervalEl.addEventListener('change', () => {
+        state.intervalSec = clamp(intervalEl.value, 1, 9999, state.intervalSec);
+        state.alertSec = Math.min(state.alertSec, state.intervalSec);
+        syncInputs();
+        persist();
+      });
+      alertEl.addEventListener('change', () => {
+        state.alertSec = clamp(alertEl.value, 0, state.intervalSec, state.alertSec);
+        syncInputs();
+        persist();
+      });
+      [intervalEl, alertEl].forEach((el) => {
+        el.addEventListener('keydown', (e) => e.stopPropagation());
+      });
+
+      barShellEl.addEventListener('click', resync);
+      barShellEl.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          resync();
+        }
+      });
+      stopEl.addEventListener('click', stop);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+        if (e.target === barShellEl) return;
+        if (e.key === '1' || e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          resync();
+        } else if (e.key === '0' || e.key === 'Escape') {
+          stop();
+        }
+      });
+
+      function fitWindow() {
+        try { window.resizeTo(window.outerWidth, WIN_H); } catch (_) {}
+      }
+
+      load();
+      syncInputs();
+      requestAnimationFrame(tick);
+      fitWindow();
+      window.addEventListener('load', fitWindow);
+    })();
+  </script>
+</body>
+</html>
